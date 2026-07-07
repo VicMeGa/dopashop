@@ -1,4 +1,4 @@
-export default function Cart({ cart, onIncreaseQty, onDecreaseQty, onRemove, onClear, onClose }) {
+export default function Cart({ cart, onIncreaseQty, onDecreaseQty, onRemove, onClear, onClose, onCheckout }) {
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
 
   return (
@@ -52,6 +52,7 @@ export default function Cart({ cart, onIncreaseQty, onDecreaseQty, onRemove, onC
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
               </div>
+              <button className="cart-checkout-btn" onClick={onCheckout}>Continuar al checkout</button>
               <button className="cart-clear" onClick={onClear}>Vaciar carrito</button>
               <button className="cart-continue" onClick={onClose}>Seguir comprando</button>
             </div>

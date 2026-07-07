@@ -4,6 +4,7 @@ import ProductCard from './components/ProductCard'
 import ProductDetail from './components/ProductDetail'
 import CategorySidebar from './components/CategorySidebar'
 import Cart from './components/Cart'
+import Checkout from './components/Checkout'
 import './App.css'
 
 function App() {
@@ -40,6 +41,20 @@ function App() {
   function handleBack() {
     setView('list')
     setSelectedProduct(null)
+  }
+
+  function handleGoToCheckout() {
+    setCartOpen(false)
+    setView('checkout')
+  }
+
+  function handleBackToCart() {
+    setView('list')
+    setCartOpen(true)
+  }
+
+  function handleConfirm() {
+    // placeholder — próximo módulo: Confirmación de Compra
   }
 
   function addToCart(product) {
@@ -114,7 +129,9 @@ function App() {
         />
 
         <main className="store-main">
-          {view === 'detail' && selectedProduct ? (
+          {view === 'checkout' ? (
+            <Checkout cart={cart} onBackToCart={handleBackToCart} onConfirm={handleConfirm} />
+          ) : view === 'detail' && selectedProduct ? (
             <ProductDetail product={selectedProduct} onBack={handleBack} onAddToCart={addToCart} />
           ) : loading ? (
             <p className="store-loading">Cargando productos...</p>
@@ -136,6 +153,7 @@ function App() {
           onRemove={removeFromCart}
           onClear={clearCart}
           onClose={() => setCartOpen(false)}
+          onCheckout={handleGoToCheckout}
         />
       )}
     </div>

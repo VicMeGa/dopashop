@@ -497,6 +497,158 @@
   font-size: 16px;
 }
 
+/* ── Cart: checkout button ── */
+.cart-checkout-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cart-checkout-btn:hover {
+  opacity: 0.9;
+}
+
+/* ── Checkout view ── */
+.checkout {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.checkout-title {
+  font-size: 24px;
+  margin: 0 0 24px;
+}
+
+.checkout-items {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.checkout-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.checkout-item:last-child {
+  border-bottom: none;
+}
+
+.checkout-item-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #f8f8f8;
+  flex-shrink: 0;
+}
+
+.checkout-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-item-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.checkout-item-unit {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.checkout-item-subtotal {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.checkout-summary {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.checkout-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text);
+  padding: 4px 0;
+}
+
+.checkout-summary-row.total {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-h);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.checkout-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.checkout-back-btn {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.checkout-back-btn:hover {
+  background: var(--accent-bg);
+}
+
+.checkout-confirm-btn {
+  flex: 1;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkout-confirm-btn:hover {
+  opacity: 0.9;
+}
+
+.checkout-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text);
+}
+
+.checkout-empty-sub {
+  font-size: 14px;
+  margin: 8px 0 24px;
+}
+
 @media (max-width: 768px) {
   .store-body {
     flex-direction: column;
