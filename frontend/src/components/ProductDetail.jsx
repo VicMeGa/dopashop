@@ -1,4 +1,4 @@
-export default function ProductDetail({ product, onBack }) {
+export default function ProductDetail({ product, onBack, onAddToCart }) {
   const img = product.images?.[0] || ''
   return (
     <div className="product-detail">
@@ -12,6 +12,9 @@ export default function ProductDetail({ product, onBack }) {
           <h2>{product.title}</h2>
           <p className="product-detail-price">${product.price}</p>
           <p className="product-detail-desc">{product.description}</p>
+          <button className="add-to-cart-btn detail" onClick={() => onAddToCart(product)}>
+            Agregar al carrito
+          </button>
         </div>
       </div>
     </div>
