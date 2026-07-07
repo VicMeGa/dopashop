@@ -5,6 +5,7 @@ import ProductDetail from './components/ProductDetail'
 import CategorySidebar from './components/CategorySidebar'
 import Cart from './components/Cart'
 import Checkout from './components/Checkout'
+import ConfirmedOrder from './components/ConfirmedOrder'
 import './App.css'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
+  const [order, setOrder] = useState(null)
 
   useEffect(() => {
     fetchCategories().then(setCategories).catch(console.error)
@@ -47,14 +49,34 @@ function App() {
     setCartOpen(false)
     setView('checkout')
   }
-
+ 
   function handleBackToCart() {
     setView('list')
     setCartOpen(true)
   }
 
   function handleConfirm() {
-    // placeholder — próximo módulo: Confirmación de Compra
+    if (cart.length === 0) return
+    const newOrder = {
+      orderId: `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+      items: cart.map(item => ({
+        product: { ...item.product },
+        quantity: item.quantity,
+      })),
+      total: cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+      status: 'COMPLETED',
+      createdAt: new Date().toISOString(),
+    }
+    setOrder(newOrder)
+    setCart([])
+    setView('confirmed')
+  }
+
+  function handleBackToCatalog() {
+    setView('list')
+    setSearch('')
+    setCategoryId(null)
+    setOrder(null)
   }
 
   function addToCart(product) {
@@ -129,7 +151,9 @@ function App() {
         />
 
         <main className="store-main">
-          {view === 'checkout' ? (
+          {view === 'confirmed' && order ? (
+            <ConfirmedOrder order={order} onBackToCatalog={handleBackToCatalog} />
+          ) : view === 'checkout' ? (
             <Checkout cart={cart} onBackToCart={handleBackToCart} onConfirm={handleConfirm} />
           ) : view === 'detail' && selectedProduct ? (
             <ProductDetail product={selectedProduct} onBack={handleBack} onAddToCart={addToCart} />
