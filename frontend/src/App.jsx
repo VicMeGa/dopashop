@@ -1,57 +1,55 @@
 import { useState, useEffect } from 'react'
-import { fetchProducts, fetchCategories } from './api'
-import ProductCard from './components/ProductCard'
-import ProductDetail from './components/ProductDetail'
-import CategorySidebar from './components/CategorySidebar'
+import { useNavigate } from 'react-router-dom'
+import { fetchProducts } from './api/products.api'
+import { fetchCategories } from './api/categories.api'
+import useDebounce from './hooks/useDebounce'
+import AppRoutes from './router/routes'
 import Cart from './components/Cart'
-import Checkout from './components/Checkout'
-import ConfirmedOrder from './components/ConfirmedOrder'
 import './App.css'
 
 function App() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [categoryId, setCategoryId] = useState(null)
-  const [view, setView] = useState('list')
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
   const [order, setOrder] = useState(null)
+
+  const debouncedSearch = useDebounce(search, 300)
 
   useEffect(() => {
     fetchCategories().then(setCategories).catch(console.error)
   }, [])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(true)
-      fetchProducts({ title: search || undefined, categoryId: categoryId || undefined })
-        .then(setProducts)
-        .catch(console.error)
-        .finally(() => setLoading(false))
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [search, categoryId])
+    setLoading(true)
+    fetchProducts({ title: debouncedSearch || undefined, categoryId: categoryId || undefined })
+      .then(setProducts)
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [debouncedSearch, categoryId])
 
   function handleSelect(product) {
     setSelectedProduct(product)
-    setView('detail')
+    navigate(`/product/${product.id}`)
   }
 
   function handleBack() {
-    setView('list')
     setSelectedProduct(null)
+    navigate('/')
   }
 
   function handleGoToCheckout() {
     setCartOpen(false)
-    setView('checkout')
+    navigate('/checkout')
   }
- 
+
   function handleBackToCart() {
-    setView('list')
+    navigate('/')
     setCartOpen(true)
   }
 
@@ -69,14 +67,15 @@ function App() {
     }
     setOrder(newOrder)
     setCart([])
-    setView('confirmed')
+    navigate(`/order-confirmed/${newOrder.orderId}`)
   }
 
   function handleBackToCatalog() {
-    setView('list')
     setSearch('')
     setCategoryId(null)
     setOrder(null)
+    setSelectedProduct(null)
+    navigate('/')
   }
 
   function addToCart(product) {
@@ -143,31 +142,22 @@ function App() {
         </button>
       </header>
 
-      <div className="store-body">
-        <CategorySidebar
-          categories={categories}
-          selected={categoryId}
-          onSelect={setCategoryId}
-        />
-
-        <main className="store-main">
-          {view === 'confirmed' && order ? (
-            <ConfirmedOrder order={order} onBackToCatalog={handleBackToCatalog} />
-          ) : view === 'checkout' ? (
-            <Checkout cart={cart} onBackToCart={handleBackToCart} onConfirm={handleConfirm} />
-          ) : view === 'detail' && selectedProduct ? (
-            <ProductDetail product={selectedProduct} onBack={handleBack} onAddToCart={addToCart} />
-          ) : loading ? (
-            <p className="store-loading">Cargando productos...</p>
-          ) : (
-            <div className="product-grid">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} onSelect={handleSelect} onAddToCart={addToCart} />
-              ))}
-            </div>
-          )}
-        </main>
-      </div>
+      <AppRoutes
+        products={products}
+        loading={loading}
+        categories={categories}
+        categoryId={categoryId}
+        selectedProduct={selectedProduct}
+        order={order}
+        cart={cart}
+        onCategoryChange={setCategoryId}
+        onSelect={handleSelect}
+        onBack={handleBack}
+        onAddToCart={addToCart}
+        onBackToCart={handleBackToCart}
+        onConfirm={handleConfirm}
+        onBackToCatalog={handleBackToCatalog}
+      />
 
       {cartOpen && (
         <Cart
