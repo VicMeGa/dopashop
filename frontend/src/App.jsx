@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { fetchProducts } from './api/products.api'
 import { fetchCategories } from './api/categories.api'
 import useDebounce from './hooks/useDebounce'
+import useAuth from './hooks/useAuth'
 import AppRoutes from './router/routes'
 import Cart from './components/Cart'
 import './App.css'
 
 function App() {
   const navigate = useNavigate()
+  const { user, isAuthenticated, logout } = useAuth()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -125,13 +127,26 @@ function App() {
   return (
     <div className="store">
       <header className="store-header">
-        <h1>dopaShop</h1>
+        <h1 onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>dopaShop</h1>
         <input
           type="text"
           placeholder="Buscar productos..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <div className="header-auth">
+          {isAuthenticated ? (
+            <>
+              <span className="header-user">{user.fullName}</span>
+              <button className="header-link" onClick={() => { logout(); navigate('/') }}>Cerrar sesión</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="header-link">Iniciar sesión</Link>
+              <Link to="/register" className="header-link">Registrarse</Link>
+            </>
+          )}
+        </div>
         <button className="cart-icon-btn" onClick={() => setCartOpen(true)}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="9" cy="21" r="1" />

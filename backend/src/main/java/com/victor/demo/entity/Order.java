@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = {"user", "address", "paymentMethod", "orderItems", "paymentTransaction", "shipment"})
+@ToString(exclude = {"user", "address", "paymentMethod", "orderItems", "paymentTransactions", "shipment"})
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -50,8 +50,9 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @OneToOne(mappedBy = "order")
-    private PaymentTransaction paymentTransaction;
+    @OneToMany(mappedBy = "order")
+    @OrderBy("createdAt DESC")
+    private List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 
     @OneToOne(mappedBy = "order")
     private Shipment shipment;
