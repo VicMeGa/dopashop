@@ -1,5 +1,6 @@
 export default function ConfirmedOrder({ order, onBackToCatalog }) {
   const date = new Date(order.createdAt)
+  const paymentOk = order.latestPaymentStatus === 'APPROVED'
 
   return (
     <div className="confirmed-order">
@@ -14,7 +15,7 @@ export default function ConfirmedOrder({ order, onBackToCatalog }) {
       <div className="confirmed-meta">
         <div className="confirmed-meta-row">
           <span className="confirmed-meta-label">Nro. de orden</span>
-          <span className="confirmed-number">{order.orderId}</span>
+          <span className="confirmed-number">#{order.id}</span>
         </div>
         <div className="confirmed-meta-row">
           <span className="confirmed-meta-label">Fecha</span>
@@ -22,20 +23,33 @@ export default function ConfirmedOrder({ order, onBackToCatalog }) {
         </div>
         <div className="confirmed-meta-row">
           <span className="confirmed-meta-label">Estado</span>
-          <span className="confirmed-status">{order.status}</span>
+          <span className="confirmed-status">{paymentOk ? 'CONFIRMADA' : order.status}</span>
         </div>
+        {order.shipment && (
+          <>
+            <div className="confirmed-meta-row">
+              <span className="confirmed-meta-label">Envío</span>
+              <span>{order.shipment.status}</span>
+            </div>
+            {order.shipment.trackingCode && (
+              <div className="confirmed-meta-row">
+                <span className="confirmed-meta-label">Seguimiento</span>
+                <span className="confirmed-number">{order.shipment.trackingCode}</span>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <div className="confirmed-items">
         <h3>Productos</h3>
-        {order.items.map(item => (
-          <div key={item.product.id} className="confirmed-item">
-            <img className="confirmed-item-img" src={item.product.images?.[0] || ''} alt={item.product.title} />
+        {order.items.map((item, i) => (
+          <div key={i} className="confirmed-item">
             <div className="confirmed-item-info">
-              <p className="confirmed-item-title">{item.product.title}</p>
-              <p className="confirmed-item-unit">${item.product.price} × {item.quantity}</p>
+              <p className="confirmed-item-title">{item.productTitle}</p>
+              <p className="confirmed-item-unit">${item.unitPrice} × {item.quantity}</p>
             </div>
-            <p className="confirmed-item-subtotal">${(item.product.price * item.quantity).toFixed(2)}</p>
+            <p className="confirmed-item-subtotal">${(item.subtotal).toFixed(2)}</p>
           </div>
         ))}
       </div>

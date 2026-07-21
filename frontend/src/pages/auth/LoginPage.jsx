@@ -1,20 +1,23 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 import AuthForm from './components/AuthForm'
 
 export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const from = location.state?.from || '/'
 
   async function handleSubmit(values) {
     setError('')
     setLoading(true)
     try {
       await login(values.email, values.password)
-      navigate('/')
+      navigate(from, { replace: true })
     } catch (e) {
       setError(e.message)
     } finally {

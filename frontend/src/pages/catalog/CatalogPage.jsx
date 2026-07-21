@@ -1,10 +1,21 @@
+import { useSearchParams } from 'react-router-dom'
 import ProductCard from '../../components/ProductCard'
 import CategorySidebar from './components/CategorySidebar'
 
-export default function CatalogPage({ products, loading, categories, categoryId, onCategoryChange, onSelect, onAddToCart }) {
+export default function CatalogPage({ products, loading, categories, onSelect, onAddToCart }) {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const categoryId = searchParams.get('category') || null
+
+  function handleCategoryChange(catId) {
+    const next = new URLSearchParams(searchParams)
+    if (catId) next.set('category', catId)
+    else next.delete('category')
+    setSearchParams(next)
+  }
+
   return (
     <div className="store-body">
-      <CategorySidebar categories={categories} selected={categoryId} onSelect={onCategoryChange} />
+      <CategorySidebar categories={categories} selected={categoryId} onSelect={handleCategoryChange} />
       <main className="store-main">
         {loading ? (
           <p className="store-loading">Cargando productos...</p>

@@ -1,12 +1,15 @@
 import { Routes, Route } from 'react-router-dom'
+import ProtectedRoute from '../components/ProtectedRoute'
 import CatalogPage from '../pages/catalog/CatalogPage'
 import ProductDetailPage from '../pages/product-detail/ProductDetailPage'
 import CheckoutPage from '../pages/checkout/CheckoutPage'
 import OrderConfirmedPage from '../pages/order-confirmed/OrderConfirmedPage'
+import AddressesPage from '../pages/addresses/AddressesPage'
+import PaymentMethodsPage from '../pages/payment-methods/PaymentMethodsPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 
-export default function AppRoutes({ products, loading, categories, categoryId, selectedProduct, order, cart, onCategoryChange, onSelect, onBack, onAddToCart, onBackToCart, onConfirm, onBackToCatalog }) {
+export default function AppRoutes({ products, loading, categories, selectedProduct, cart, onSelect, onBack, onAddToCart, onBackToCart, clearCart, onBackToCatalog }) {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -18,8 +21,6 @@ export default function AppRoutes({ products, loading, categories, categoryId, s
             products={products}
             loading={loading}
             categories={categories}
-            categoryId={categoryId}
-            onCategoryChange={onCategoryChange}
             onSelect={onSelect}
             onAddToCart={onAddToCart}
           />
@@ -38,20 +39,33 @@ export default function AppRoutes({ products, loading, categories, categoryId, s
       <Route
         path="/checkout"
         element={
-          <CheckoutPage
-            cart={cart}
-            onBackToCart={onBackToCart}
-            onConfirm={onConfirm}
-          />
+          <ProtectedRoute>
+            <CheckoutPage cart={cart} onBackToCart={onBackToCart} clearCart={clearCart} />
+          </ProtectedRoute>
         }
       />
       <Route
         path="/order-confirmed/:orderId"
         element={
-          <OrderConfirmedPage
-            order={order}
-            onBackToCatalog={onBackToCatalog}
-          />
+          <ProtectedRoute>
+            <OrderConfirmedPage onBackToCatalog={onBackToCatalog} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/addresses"
+        element={
+          <ProtectedRoute>
+            <AddressesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-methods"
+        element={
+          <ProtectedRoute>
+            <PaymentMethodsPage />
+          </ProtectedRoute>
         }
       />
     </Routes>

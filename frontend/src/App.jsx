@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { fetchProducts } from './api/products.api'
 import { fetchCategories } from './api/categories.api'
 import useDebounce from './hooks/useDebounce'
@@ -11,16 +11,16 @@ import './App.css'
 function App() {
   const navigate = useNavigate()
   const { user, isAuthenticated, logout } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [categoryId, setCategoryId] = useState(null)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
-  const [order, setOrder] = useState(null)
 
+  const search = searchParams.get('search') || ''
+  const categoryId = searchParams.get('category') || null
   const debouncedSearch = useDebounce(search, 300)
 
   useEffect(() => {
@@ -55,27 +55,7 @@ function App() {
     setCartOpen(true)
   }
 
-  function handleConfirm() {
-    if (cart.length === 0) return
-    const newOrder = {
-      orderId: `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-      items: cart.map(item => ({
-        product: { ...item.product },
-        quantity: item.quantity,
-      })),
-      total: cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
-      status: 'COMPLETED',
-      createdAt: new Date().toISOString(),
-    }
-    setOrder(newOrder)
-    setCart([])
-    navigate(`/order-confirmed/${newOrder.orderId}`)
-  }
-
   function handleBackToCatalog() {
-    setSearch('')
-    setCategoryId(null)
-    setOrder(null)
     setSelectedProduct(null)
     navigate('/')
   }
@@ -132,12 +112,20 @@ function App() {
           type="text"
           placeholder="Buscar productos..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value
+            const next = new URLSearchParams(searchParams)
+            if (value) next.set('search', value)
+            else next.delete('search')
+            setSearchParams(next, { replace: true })
+          }}
         />
         <div className="header-auth">
           {isAuthenticated ? (
             <>
               <span className="header-user">{user.fullName}</span>
+              <Link to="/addresses" className="header-link">Direcciones</Link>
+              <Link to="/payment-methods" className="header-link">Pagos</Link>
               <button className="header-link" onClick={() => { logout(); navigate('/') }}>Cerrar sesión</button>
             </>
           ) : (
@@ -161,16 +149,13 @@ function App() {
         products={products}
         loading={loading}
         categories={categories}
-        categoryId={categoryId}
         selectedProduct={selectedProduct}
-        order={order}
         cart={cart}
-        onCategoryChange={setCategoryId}
         onSelect={handleSelect}
         onBack={handleBack}
         onAddToCart={addToCart}
         onBackToCart={handleBackToCart}
-        onConfirm={handleConfirm}
+        clearCart={clearCart}
         onBackToCatalog={handleBackToCatalog}
       />
 
