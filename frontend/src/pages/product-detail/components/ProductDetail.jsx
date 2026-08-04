@@ -1,4 +1,9 @@
+import { useState } from 'react'
+import ReviewList from './ReviewList'
+import ReviewForm from './ReviewForm'
+
 export default function ProductDetail({ product, onBack, onAddToCart }) {
+  const [reviewsVersion, setReviewsVersion] = useState(0)
   const img = product.images?.[0] || ''
   return (
     <div className="product-detail">
@@ -17,6 +22,9 @@ export default function ProductDetail({ product, onBack, onAddToCart }) {
           </button>
         </div>
       </div>
+
+      <ReviewList productId={product.id} refreshKey={reviewsVersion} />
+      <ReviewForm productId={product.id} onSuccess={() => setReviewsVersion(v => v + 1)} />
     </div>
   )
 }

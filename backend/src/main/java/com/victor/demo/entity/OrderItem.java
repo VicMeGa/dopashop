@@ -31,6 +31,9 @@ public class OrderItem {
     @Column(name = "product_title", nullable = false)
     private String productTitle;
 
+    @Column(name = "product_image_url", length = 1000)
+    private String productImageUrl;
+
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 

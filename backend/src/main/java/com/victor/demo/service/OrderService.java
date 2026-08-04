@@ -4,6 +4,7 @@ import com.victor.demo.dto.request.CreateOrderRequest;
 import com.victor.demo.dto.response.OrderResponse;
 import com.victor.demo.entity.*;
 import com.victor.demo.mapper.OrderMapper;
+import com.victor.demo.mapper.ProductMapper;
 import com.victor.demo.repository.*;
 import com.victor.demo.security.CurrentUserProvider;
 import org.springframework.http.HttpStatus;
@@ -75,6 +76,8 @@ public class OrderService {
             OrderItem item = new OrderItem();
             item.setProduct(product);
             item.setProductTitle(product.getTitle());
+            List<String> images = ProductMapper.parseImages(product.getImageUrls());
+            item.setProductImageUrl(images.isEmpty() ? null : images.get(0));
             item.setUnitPrice(product.getPrice());
             item.setQuantity(itemReq.quantity());
             item.setSubtotal(subtotal);

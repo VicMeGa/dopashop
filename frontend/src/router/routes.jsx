@@ -6,6 +6,8 @@ import CheckoutPage from '../pages/checkout/CheckoutPage'
 import OrderConfirmedPage from '../pages/order-confirmed/OrderConfirmedPage'
 import AddressesPage from '../pages/addresses/AddressesPage'
 import PaymentMethodsPage from '../pages/payment-methods/PaymentMethodsPage'
+import OrdersHistoryPage from '../pages/orders-history/OrdersHistoryPage'
+import OrderDetailPage from '../pages/orders-history/OrderDetailPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 
@@ -65,6 +67,22 @@ export default function AppRoutes({ products, loading, categories, selectedProdu
         element={
           <ProtectedRoute>
             <PaymentMethodsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <OrdersHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders/:id"
+        element={
+          <ProtectedRoute>
+            <OrderDetailPage />
           </ProtectedRoute>
         }
       />

@@ -38,6 +38,7 @@ public class OrderMapper {
     private static OrderItemResponse toItemResponse(OrderItem item) {
         return new OrderItemResponse(
                 item.getProduct().getId(),
+                item.getProductImageUrl(),
                 item.getProductTitle(),
                 item.getUnitPrice(),
                 item.getQuantity(),

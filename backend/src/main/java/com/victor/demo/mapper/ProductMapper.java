@@ -31,7 +31,7 @@ public class ProductMapper {
         );
     }
 
-    private static List<String> parseImages(String imageUrls) {
+    public static List<String> parseImages(String imageUrls) {
         if (imageUrls == null || imageUrls.isBlank()) return Collections.emptyList();
         try {
             return MAPPER.readValue(imageUrls, new TypeReference<List<String>>() {});
