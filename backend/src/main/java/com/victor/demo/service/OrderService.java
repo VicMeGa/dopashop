@@ -58,9 +58,9 @@ public class OrderService {
         BigDecimal total = BigDecimal.ZERO;
 
         for (CreateOrderRequest.OrderItemRequest itemReq : request.items()) {
-            Product product = productRepository.findById(itemReq.productId())
+            Product product = productRepository.findByIdAndActiveTrue(itemReq.productId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            "Product not found: " + itemReq.productId()));
+                            "El producto " + itemReq.productId() + " ya no está disponible"));
 
             if (product.getStock() < itemReq.quantity()) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,

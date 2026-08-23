@@ -17,6 +17,8 @@ public class ProductSpecifications {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            predicates.add(cb.isTrue(root.get("active")));
+
             if (title != null && !title.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("title")),
                         "%" + title.toLowerCase() + "%"));

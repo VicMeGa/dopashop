@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = {"addresses", "paymentMethods", "orders", "reviews"})
+@ToString(exclude = {"addresses", "paymentMethods", "orders", "reviews", "store"})
 @Entity
 @Table(name = "users")
 public class User {
@@ -39,6 +39,9 @@ public class User {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Store store;
 
     @OneToMany(mappedBy = "user")
     private List<Address> addresses = new ArrayList<>();

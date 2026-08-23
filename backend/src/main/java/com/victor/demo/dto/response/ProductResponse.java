@@ -10,5 +10,8 @@ public record ProductResponse(
         String description,
         Integer stock,
         List<String> images,
-        CategoryResponse category) {
+        CategoryResponse category,
+        Long storeId,
+        String storeName,
+        boolean active) {
 }

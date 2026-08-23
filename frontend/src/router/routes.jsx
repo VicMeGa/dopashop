@@ -8,6 +8,7 @@ import AddressesPage from '../pages/addresses/AddressesPage'
 import PaymentMethodsPage from '../pages/payment-methods/PaymentMethodsPage'
 import OrdersHistoryPage from '../pages/orders-history/OrdersHistoryPage'
 import OrderDetailPage from '../pages/orders-history/OrderDetailPage'
+import MyStorePage from '../pages/my-store/MyStorePage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 
@@ -83,6 +84,14 @@ export default function AppRoutes({ products, loading, categories, selectedProdu
         element={
           <ProtectedRoute>
             <OrderDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-store"
+        element={
+          <ProtectedRoute>
+            <MyStorePage />
           </ProtectedRoute>
         }
       />

@@ -127,6 +127,7 @@ function App() {
               <Link to="/addresses" className="header-link">Direcciones</Link>
               <Link to="/orders" className="header-link">Mis órdenes</Link>
               <Link to="/payment-methods" className="header-link">Pagos</Link>
+              <Link to="/my-store" className="header-link">Mi tienda</Link>
               <button className="header-link" onClick={() => { logout(); navigate('/') }}>Cerrar sesión</button>
             </>
           ) : (

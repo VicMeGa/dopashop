@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.victor.demo.dto.response.CategoryResponse;
 import com.victor.demo.dto.response.ProductResponse;
 import com.victor.demo.entity.Product;
+import com.victor.demo.entity.Store;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ProductMapper {
         CategoryResponse category = product.getCategory() != null
                 ? CategoryMapper.toResponse(product.getCategory())
                 : null;
+        Store store = product.getStore();
         return new ProductResponse(
                 product.getId(),
                 product.getTitle(),
@@ -27,7 +29,10 @@ public class ProductMapper {
                 product.getDescription(),
                 product.getStock(),
                 images,
-                category
+                category,
+                store != null ? store.getId() : null,
+                store != null ? store.getName() : null,
+                product.getActive()
         );
     }
 
@@ -37,6 +42,15 @@ public class ProductMapper {
             return MAPPER.readValue(imageUrls, new TypeReference<List<String>>() {});
         } catch (Exception e) {
             return Collections.emptyList();
+        }
+    }
+
+    public static String serializeImages(List<String> urls) {
+        if (urls == null || urls.isEmpty()) return null;
+        try {
+            return MAPPER.writeValueAsString(urls);
+        } catch (Exception e) {
+            return null;
         }
     }
 }

@@ -28,6 +28,11 @@ export function setOnUnauthenticated(fn) {
 export async function apiFetch(url, options = {}) {
   const token = await getAccessToken()
   const headers = { ...options.headers }
+  if (options.body instanceof FormData) {
+    delete headers['Content-Type']
+  } else if (!headers['Content-Type'] && options.body) {
+    headers['Content-Type'] = 'application/json'
+  }
   if (token && !url.startsWith('/api/auth/')) {
     headers['Authorization'] = `Bearer ${token}`
   }
