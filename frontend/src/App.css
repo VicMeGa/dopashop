@@ -1627,7 +1627,37 @@
   opacity: 0.7;
 }
 
-/* ── My store ── */
+.product-card-store {
+  font-size: 13px;
+  color: var(--text);
+  margin: 4px 0;
+}
+
+.product-card-store a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.product-card-store a:hover {
+  text-decoration: underline;
+}
+
+.product-detail-store {
+  font-size: 14px;
+  color: var(--text);
+  margin: 4px 0 12px;
+}
+
+.product-detail-store a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.product-detail-store a:hover {
+  text-decoration: underline;
+}
 .my-store-create-form {
   max-width: 480px;
   display: flex;

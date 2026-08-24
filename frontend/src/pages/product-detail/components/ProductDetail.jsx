@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import ReviewList from './ReviewList'
 import ReviewForm from './ReviewForm'
 
@@ -15,6 +16,11 @@ export default function ProductDetail({ product, onBack, onAddToCart }) {
         <div className="product-detail-info">
           <span className="product-detail-category">{product.category?.name}</span>
           <h2>{product.title}</h2>
+          {product.storeName && (
+            <p className="product-detail-store">
+              Vendido por: <Link to={`/stores/${product.storeId}`}>{product.storeName}</Link>
+            </p>
+          )}
           <p className="product-detail-price">${product.price}</p>
           <p className="product-detail-desc">{product.description}</p>
           <button className="add-to-cart-btn detail" onClick={() => onAddToCart(product)}>
