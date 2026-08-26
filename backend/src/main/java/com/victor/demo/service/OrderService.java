@@ -43,15 +43,15 @@ public class OrderService {
         User user = currentUserProvider.getCurrentUser();
 
         Address address = addressRepository.findById(request.addressId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dirección no encontrada"));
         if (!address.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Address does not belong to current user");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La dirección no pertenece al usuario actual");
         }
 
         PaymentMethod paymentMethod = paymentMethodRepository.findById(request.paymentMethodId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment method not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
         if (!paymentMethod.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment method does not belong to current user");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El método de pago no pertenece al usuario actual");
         }
 
         List<OrderItem> orderItems = new ArrayList<>();
@@ -64,8 +64,8 @@ public class OrderService {
 
             if (product.getStock() < itemReq.quantity()) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Insufficient stock for product: " + product.getTitle()
-                                + " (available: " + product.getStock() + ", requested: " + itemReq.quantity() + ")");
+                        "Stock insuficiente para el producto: " + product.getTitle()
+                                + " (disponible: " + product.getStock() + ", solicitado: " + itemReq.quantity() + ")");
             }
 
             BigDecimal subtotal = product.getPrice()
@@ -100,9 +100,9 @@ public class OrderService {
     public OrderResponse findByIdForCurrentUser(Long orderId) {
         User user = currentUserProvider.getCurrentUser();
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
         if (!order.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order does not belong to current user");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La orden no pertenece al usuario actual");
         }
         return OrderMapper.toResponse(order);
     }

@@ -8,7 +8,7 @@ export async function register(email, password, fullName) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.message || err.error || 'Registration failed')
+    throw new Error(err.message || err.error || 'No se pudo completar el registro')
   }
   return res.json()
 }
@@ -21,7 +21,7 @@ export async function login(email, password) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.message || err.error || 'Login failed')
+    throw new Error(err.message || err.error || 'No se pudo iniciar sesión')
   }
   return res.json()
 }

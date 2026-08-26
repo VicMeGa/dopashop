@@ -49,12 +49,12 @@ export async function apiFetch(url, options = {}) {
       } else {
         clearTokens()
         if (onUnauthenticated) onUnauthenticated()
-        throw new Error('Session expired')
+        throw new Error('Tu sesión expiró')
       }
     } else {
       clearTokens()
       if (onUnauthenticated) onUnauthenticated()
-      throw new Error('Not authenticated')
+      throw new Error('Debes iniciar sesión')
     }
   }
 

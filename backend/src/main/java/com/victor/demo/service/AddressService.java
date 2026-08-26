@@ -54,9 +54,9 @@ public class AddressService {
     public AddressResponse update(Long id, AddressRequest request) {
         User user = currentUserProvider.getCurrentUser();
         Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dirección no encontrada"));
         if (!address.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Address does not belong to current user");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La dirección no pertenece al usuario actual");
         }
         if (request.isDefault()) {
             clearExistingDefault(user.getId());
@@ -75,9 +75,9 @@ public class AddressService {
     public void delete(Long id) {
         User user = currentUserProvider.getCurrentUser();
         Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dirección no encontrada"));
         if (!address.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Address does not belong to current user");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La dirección no pertenece al usuario actual");
         }
         addressRepository.delete(address);
     }

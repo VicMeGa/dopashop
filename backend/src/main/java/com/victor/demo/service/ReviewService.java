@@ -43,7 +43,7 @@ public class ReviewService {
         User user = currentUserProvider.getCurrentUser();
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
 
         boolean hasPurchased = orderItemRepository.existsConfirmedPurchase(productId, user.getId());
         if (!hasPurchased) {

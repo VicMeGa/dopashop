@@ -4,7 +4,9 @@ import com.victor.demo.dto.response.CategoryResponse;
 import com.victor.demo.entity.Category;
 import com.victor.demo.mapper.CategoryMapper;
 import com.victor.demo.repository.CategoryRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class CategoryService {
 
     public CategoryResponse findById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada"));
         return CategoryMapper.toResponse(category);
     }
 }

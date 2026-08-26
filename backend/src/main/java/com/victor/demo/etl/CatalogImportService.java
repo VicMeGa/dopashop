@@ -39,7 +39,7 @@ public class CatalogImportService {
 
     public ImportResult importCatalog() {
         if (categoryRepository.count() > 0 || productRepository.count() > 0) {
-            return new ImportResult("ABORTED", "Data already exists. Import skipped.",
+            return new ImportResult("ABORTED", "Ya existen datos en el catálogo. Importación omitida.",
                     0, 0, 0);
         }
 
@@ -124,7 +124,7 @@ public class CatalogImportService {
         }
         log.info("Imported {} products", productCount);
 
-        return new ImportResult("SUCCESS", "Catalog imported successfully.",
+        return new ImportResult("SUCCESS", "Catálogo importado correctamente.",
                 categoryCount, productCount, failedImages);
     }
 

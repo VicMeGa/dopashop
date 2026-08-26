@@ -8,12 +8,12 @@ export async function fetchProducts(params = {}) {
   if (params.priceMax) query.set('priceMax', params.priceMax)
   const qs = query.toString()
   const res = await fetch(`${BASE}/products${qs ? '?' + qs : ''}`)
-  if (!res.ok) throw new Error('Failed to fetch products')
+  if (!res.ok) throw new Error('Error al cargar productos')
   return res.json()
 }
 
 export async function fetchProduct(id) {
   const res = await fetch(`${BASE}/products/${id}`)
-  if (!res.ok) throw new Error('Failed to fetch product')
+  if (!res.ok) throw new Error('Error al cargar el producto')
   return res.json()
 }

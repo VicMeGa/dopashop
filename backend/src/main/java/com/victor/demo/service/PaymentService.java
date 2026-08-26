@@ -39,21 +39,21 @@ public class PaymentService {
     public PaymentAttemptResponse attemptPayment(Long orderId) {
         User user = currentUserProvider.getCurrentUser();
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
 
         if (!order.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order does not belong to current user");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La orden no pertenece al usuario actual");
         }
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Order already paid or cancelled");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La orden ya fue pagada o cancelada");
         }
 
         for (OrderItem item : order.getOrderItems()) {
             Product product = item.getProduct();
             if (product.getStock() < item.getQuantity()) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Insufficient stock for product: " + product.getTitle()
-                                + " (available: " + product.getStock() + ", requested: " + item.getQuantity() + ")");
+                        "Stock insuficiente para el producto: " + product.getTitle()
+                                + " (disponible: " + product.getStock() + ", solicitado: " + item.getQuantity() + ")");
             }
         }
 

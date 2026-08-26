@@ -48,9 +48,9 @@ public class PaymentMethodService {
     public void delete(Long id) {
         User user = currentUserProvider.getCurrentUser();
         PaymentMethod pm = paymentMethodRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment method not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
         if (!pm.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment method does not belong to current user");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El método de pago no pertenece al usuario actual");
         }
         paymentMethodRepository.delete(pm);
     }
