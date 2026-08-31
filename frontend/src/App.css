@@ -1747,3 +1747,39 @@
   display: flex;
   gap: 8px;
 }
+
+.field-error-input {
+  border-color: #e74c3c !important;
+}
+
+.field-error {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* ── Stock status ── */
+.product-card-stock {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 4px 0;
+}
+
+.product-detail-stock {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.out-of-stock {
+  color: #e74c3c;
+}
+
+.low-stock {
+  color: #f39c12;
+}
+
+.add-to-cart-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

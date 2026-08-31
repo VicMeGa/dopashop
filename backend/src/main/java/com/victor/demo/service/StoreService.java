@@ -30,8 +30,8 @@ public class StoreService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya tienes una tienda registrada");
         }
         Store store = new Store();
-        store.setName(request.name());
-        store.setDescription(request.description());
+        store.setName(request.name().trim());
+        store.setDescription(request.description() == null ? null : request.description().trim());
         store.setOwner(user);
         storeRepository.save(store);
         return StoreMapper.toResponse(store);

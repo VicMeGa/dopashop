@@ -16,8 +16,15 @@ export default function ProductCard({ product, onSelect, onAddToCart }) {
           </p>
         )}
         <p className="product-card-price">${product.price}</p>
-        <button className="add-to-cart-btn" onClick={(e) => { e.stopPropagation(); onAddToCart(product) }}>
-          Agregar
+        <p className={`product-card-stock ${product.stock === 0 ? 'out-of-stock' : ''}`}>
+          {product.stock === 0 ? 'Agotado' : `Stock: ${product.stock}`}
+        </p>
+        <button 
+          className="add-to-cart-btn" 
+          onClick={(e) => { e.stopPropagation(); onAddToCart(product) }}
+          disabled={product.stock === 0}
+        >
+          {product.stock === 0 ? 'Sin stock' : 'Agregar'}
         </button>
       </div>
     </article>

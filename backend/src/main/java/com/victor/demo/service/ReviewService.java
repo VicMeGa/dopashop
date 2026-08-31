@@ -51,6 +51,10 @@ public class ReviewService {
                     "Debes haber comprado este producto para poder comentarlo");
         }
 
+        if (reviewRepository.existsByProductIdAndUserId(productId, user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya reseñaste este producto");
+        }
+
         Review review = new Review();
         review.setProduct(product);
         review.setUser(user);

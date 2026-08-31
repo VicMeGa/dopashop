@@ -37,7 +37,7 @@ public class PaymentMethodService {
         User user = currentUserProvider.getCurrentUser();
         PaymentMethod pm = new PaymentMethod();
         pm.setUser(user);
-        pm.setAlias(request.alias());
+        pm.setAlias(request.alias().trim());
         pm.setCardLastFour(request.cardLastFour());
         pm.setCardBrand(request.cardBrand());
         paymentMethodRepository.save(pm);

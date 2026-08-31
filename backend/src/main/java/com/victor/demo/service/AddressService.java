@@ -40,11 +40,11 @@ public class AddressService {
         }
         Address address = new Address();
         address.setUser(user);
-        address.setStreet(request.street());
-        address.setCity(request.city());
-        address.setState(request.state());
-        address.setZipCode(request.zipCode());
-        address.setCountry(request.country());
+        address.setStreet(request.street().trim());
+        address.setCity(request.city().trim());
+        address.setState(request.state().trim());
+        address.setZipCode(request.zipCode().trim());
+        address.setCountry(request.country().trim());
         address.setIsDefault(request.isDefault());
         addressRepository.save(address);
         return AddressMapper.toResponse(address);
@@ -61,11 +61,11 @@ public class AddressService {
         if (request.isDefault()) {
             clearExistingDefault(user.getId());
         }
-        address.setStreet(request.street());
-        address.setCity(request.city());
-        address.setState(request.state());
-        address.setZipCode(request.zipCode());
-        address.setCountry(request.country());
+        address.setStreet(request.street().trim());
+        address.setCity(request.city().trim());
+        address.setState(request.state().trim());
+        address.setZipCode(request.zipCode().trim());
+        address.setCountry(request.country().trim());
         address.setIsDefault(request.isDefault());
         addressRepository.save(address);
         return AddressMapper.toResponse(address);

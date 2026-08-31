@@ -5,13 +5,16 @@ import com.victor.demo.dto.request.UpdateProductRequest;
 import com.victor.demo.dto.response.ProductResponse;
 import com.victor.demo.service.ProductService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
+@Validated
 public class ProductController {
 
     private final ProductService productService;
@@ -23,8 +26,10 @@ public class ProductController {
     @GetMapping("/api/store/products")
     public List<ProductResponse> getProducts(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) BigDecimal priceMin,
-            @RequestParam(required = false) BigDecimal priceMax,
+            @RequestParam(required = false)
+            @DecimalMin(value = "0", message = "El precio mínimo no puede ser negativo") BigDecimal priceMin,
+            @RequestParam(required = false)
+            @DecimalMin(value = "0", message = "El precio máximo no puede ser negativo") BigDecimal priceMax,
             @RequestParam(required = false) Long categoryId) {
         return productService.findAll(title, priceMin, priceMax, categoryId);
     }

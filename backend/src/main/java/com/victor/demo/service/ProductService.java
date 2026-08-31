@@ -42,6 +42,10 @@ public class ProductService {
 
     public List<ProductResponse> findAll(String title, BigDecimal priceMin,
                                           BigDecimal priceMax, Long categoryId) {
+        if (priceMin != null && priceMax != null && priceMin.compareTo(priceMax) > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "El precio mínimo no puede ser mayor al máximo");
+        }
         var spec = ProductSpecifications.withFilters(title, priceMin, priceMax, categoryId);
         return productRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "id"))
                 .stream()
@@ -75,8 +79,8 @@ public class ProductService {
         Store store = getStoreForCurrentUser();
         Category category = findCategory(request.categoryId());
         Product product = new Product();
-        product.setTitle(request.title());
-        product.setDescription(request.description());
+        product.setTitle(request.title().trim());
+        product.setDescription(request.description() == null ? null : request.description().trim());
         product.setPrice(request.price());
         product.setStock(request.stock());
         product.setImageUrls(ProductMapper.serializeImages(request.imageUrls()));
@@ -89,8 +93,14 @@ public class ProductService {
     @Transactional
     public ProductResponse updateProduct(Long productId, UpdateProductRequest request) {
         Product product = getOwnedProduct(productId);
-        if (request.title() != null) product.setTitle(request.title());
-        if (request.description() != null) product.setDescription(request.description());
+        if (request.title() != null) {
+            String title = request.title().trim();
+            if (title.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El título no puede estar vacío");
+            }
+            product.setTitle(title);
+        }
+        if (request.description() != null) product.setDescription(request.description().trim());
         if (request.price() != null) product.setPrice(request.price());
         if (request.stock() != null) product.setStock(request.stock());
         if (request.imageUrls() != null) product.setImageUrls(ProductMapper.serializeImages(request.imageUrls()));

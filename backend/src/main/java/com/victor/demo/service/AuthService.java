@@ -40,13 +40,14 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
+        String email = request.email().trim().toLowerCase();
+        if (userRepository.findByEmail(email).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El email ya está registrado");
         }
         User user = new User();
-        user.setEmail(request.email());
+        user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setFullName(request.fullName());
+        user.setFullName(request.fullName().trim());
         user.setRole(UserRole.USER);
         userRepository.save(user);
         return generateAuthResponse(user);
@@ -54,7 +55,7 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByEmail(request.email().trim().toLowerCase())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas"));
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");

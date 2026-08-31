@@ -22,9 +22,16 @@ export default function ProductDetail({ product, onBack, onAddToCart }) {
             </p>
           )}
           <p className="product-detail-price">${product.price}</p>
+          <p className={`product-detail-stock ${product.stock === 0 ? 'out-of-stock' : product.stock < 5 ? 'low-stock' : ''}`}>
+            {product.stock === 0 ? 'Agotado' : product.stock < 5 ? `¡Últimas ${product.stock} unidades!` : `Stock disponible: ${product.stock}`}
+          </p>
           <p className="product-detail-desc">{product.description}</p>
-          <button className="add-to-cart-btn detail" onClick={() => onAddToCart(product)}>
-            Agregar al carrito
+          <button 
+            className="add-to-cart-btn detail" 
+            onClick={() => onAddToCart(product)}
+            disabled={product.stock === 0}
+          >
+            {product.stock === 0 ? 'Sin stock' : 'Agregar al carrito'}
           </button>
         </div>
       </div>

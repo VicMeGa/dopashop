@@ -72,6 +72,7 @@ export default function ReviewForm({ productId, onSuccess }) {
           value={comment}
           onChange={e => setComment(e.target.value)}
           rows="4"
+          maxLength={2000}
           placeholder="Contanos tu experiencia con el producto..."
         />
       </label>

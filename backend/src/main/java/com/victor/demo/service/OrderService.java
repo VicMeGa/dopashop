@@ -15,7 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderService {
@@ -56,8 +58,14 @@ public class OrderService {
 
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
+        Set<Long> seenProducts = new HashSet<>();
 
         for (CreateOrderRequest.OrderItemRequest itemReq : request.items()) {
+            if (!seenProducts.add(itemReq.productId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Hay productos duplicados en la orden: " + itemReq.productId());
+            }
+
             Product product = productRepository.findByIdAndActiveTrue(itemReq.productId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "El producto " + itemReq.productId() + " ya no está disponible"));

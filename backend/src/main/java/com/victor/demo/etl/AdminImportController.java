@@ -39,7 +39,7 @@ public class AdminImportController {
     @PostMapping("/import/catalog")
     public ResponseEntity<?> importCatalog(@RequestHeader("X-Admin-Token") String token) {
         if (!adminToken.equals(token)) {
-            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+            return ResponseEntity.status(401).body(Map.of("error", "No autorizado"));
         }
         ImportResult result = catalogImportService.importCatalog();
         log.info("Import result: {} - {} categories, {} products",
@@ -50,10 +50,10 @@ public class AdminImportController {
     @DeleteMapping("/import/catalog")
     public ResponseEntity<?> clearCatalog(@RequestHeader("X-Admin-Token") String token) {
         if (!adminToken.equals(token)) {
-            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+            return ResponseEntity.status(401).body(Map.of("error", "No autorizado"));
         }
         catalogImportService.clearCatalog();
-        log.info("Catalog cleared");
-        return ResponseEntity.ok(Map.of("status", "OK", "message", "Catalog cleared"));
+        log.info("Catálogo limpiado");
+        return ResponseEntity.ok(Map.of("status", "OK", "message", "Catálogo limpiado"));
     }
 }

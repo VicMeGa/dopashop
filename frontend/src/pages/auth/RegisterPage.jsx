@@ -29,6 +29,7 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
         error={error}
         loading={loading}
+        confirmPassword
         fields={[
           { name: 'fullName', label: 'Nombre completo', autoComplete: 'name' },
           { name: 'email', label: 'Email', type: 'email', autoComplete: 'email' },

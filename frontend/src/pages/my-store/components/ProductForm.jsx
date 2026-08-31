@@ -69,8 +69,20 @@ export default function ProductForm({ initialValues, onSubmit, onCancel }) {
       setError('El título es obligatorio')
       return
     }
-    if (values.price === '' || Number.isNaN(price) || price < 0) {
-      setError('El precio debe ser un número mayor o igual a 0')
+    if (values.title.trim().length > 200) {
+      setError('El título no puede superar los 200 caracteres')
+      return
+    }
+    if (values.description && values.description.length > 4000) {
+      setError('La descripción no puede superar los 4000 caracteres')
+      return
+    }
+    if (values.price === '' || Number.isNaN(price) || price <= 0) {
+      setError('El precio debe ser un número mayor a 0')
+      return
+    }
+    if (!/^\d+(\.\d{1,2})?$/.test(values.price)) {
+      setError('El precio no puede tener más de 2 decimales')
       return
     }
     if (values.stock === '' || !Number.isInteger(stock) || stock < 0) {
@@ -118,6 +130,7 @@ export default function ProductForm({ initialValues, onSubmit, onCancel }) {
           <input
             id="product-title"
             name="title"
+            maxLength={200}
             value={values.title}
             onChange={handleChange}
             placeholder="Ej: Mouse inalámbrico Logitech"
@@ -140,7 +153,7 @@ export default function ProductForm({ initialValues, onSubmit, onCancel }) {
             id="product-price"
             name="price"
             type="number"
-            min="0"
+            min="0.01"
             step="0.01"
             value={values.price}
             onChange={handleChange}
@@ -167,6 +180,7 @@ export default function ProductForm({ initialValues, onSubmit, onCancel }) {
         <textarea
           id="product-description"
           name="description"
+          maxLength={4000}
           rows={4}
           value={values.description}
           onChange={handleChange}

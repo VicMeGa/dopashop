@@ -83,9 +83,9 @@ public class PaymentService {
             shipmentRepository.save(shipment);
             order.setShipment(shipment);
 
-            message = "Payment approved";
+            message = "Pago aprobado";
         } else {
-            message = "Payment rejected — you can retry";
+            message = "Pago rechazado — puedes reintentarlo";
         }
 
         orderRepository.save(order);
