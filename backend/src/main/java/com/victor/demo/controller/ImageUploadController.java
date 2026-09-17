@@ -6,6 +6,8 @@ import com.victor.demo.entity.User;
 import com.victor.demo.repository.StoreRepository;
 import com.victor.demo.security.CurrentUserProvider;
 import com.victor.demo.service.ImageUploadService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/stores/mine")
 public class ImageUploadController {
+
+    private static final Logger log = LoggerFactory.getLogger(ImageUploadController.class);
 
     private final ImageUploadService imageUploadService;
     private final StoreRepository storeRepository;
@@ -33,6 +37,7 @@ public class ImageUploadController {
 
     @PostMapping("/images")
     public ResponseEntity<ImageUploadResponse> uploadImage(@RequestParam("file") MultipartFile file) {
+        log.info("[CONTROLLER] POST /api/stores/mine/images tamaño={}B", file.getSize());
         User user = currentUserProvider.getCurrentUser();
         Store store = storeRepository.findByOwnerId(user.getId())
                 .orElseThrow(() -> new ResponseStatusException(

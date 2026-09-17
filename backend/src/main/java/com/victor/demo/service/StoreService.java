@@ -7,6 +7,8 @@ import com.victor.demo.entity.User;
 import com.victor.demo.mapper.StoreMapper;
 import com.victor.demo.repository.StoreRepository;
 import com.victor.demo.security.CurrentUserProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class StoreService {
+
+    private static final Logger log = LoggerFactory.getLogger(StoreService.class);
 
     private final StoreRepository storeRepository;
     private final CurrentUserProvider currentUserProvider;
@@ -27,6 +31,7 @@ public class StoreService {
     public StoreResponse createStore(StoreRequest request) {
         User user = currentUserProvider.getCurrentUser();
         if (storeRepository.findByOwnerId(user.getId()).isPresent()) {
+            log.warn("Tienda rechazada: el userId={} ya tiene una tienda", user.getId());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya tienes una tienda registrada");
         }
         Store store = new Store();
@@ -34,6 +39,7 @@ public class StoreService {
         store.setDescription(request.description() == null ? null : request.description().trim());
         store.setOwner(user);
         storeRepository.save(store);
+        log.info("Tienda creada storeId={} nombre={} ownerId={}", store.getId(), store.getName(), user.getId());
         return StoreMapper.toResponse(store);
     }
 

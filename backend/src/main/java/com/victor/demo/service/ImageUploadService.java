@@ -2,6 +2,8 @@ package com.victor.demo.service;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ import java.util.UUID;
 
 @Service
 public class ImageUploadService {
+
+    private static final Logger log = LoggerFactory.getLogger(ImageUploadService.class);
 
     private static final long MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
     private static final String USER_PRODUCTS_PREFIX = "user-products";
@@ -50,8 +54,10 @@ public class ImageUploadService {
                     .contentType(contentType)
                     .build());
         } catch (Exception e) {
+            log.error("Error subiendo imagen a MinIO objectName={} storeId={}", objectName, storeId, e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo subir la imagen");
         }
+        log.info("Imagen subida a MinIO objectName={} storeId={} tamaño={}B", objectName, storeId, file.getSize());
         return endpoint + "/" + bucket + "/" + objectName;
     }
 

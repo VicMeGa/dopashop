@@ -11,6 +11,8 @@ import com.victor.demo.entity.UserRole;
 import com.victor.demo.repository.RefreshTokenRepository;
 import com.victor.demo.repository.UserRepository;
 import com.victor.demo.security.JwtService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,8 @@ import java.time.LocalDateTime;
 
 @Service
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -42,6 +46,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase();
         if (userRepository.findByEmail(email).isPresent()) {
+            log.warn("Intento de registro con email ya existente: {}", email);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El email ya está registrado");
         }
         User user = new User();
@@ -50,16 +55,23 @@ public class AuthService {
         user.setFullName(request.fullName().trim());
         user.setRole(UserRole.USER);
         userRepository.save(user);
+        log.info("Registro OK userId={} email={}", user.getId(), email);
         return generateAuthResponse(user);
     }
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email().trim().toLowerCase())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas"));
+        String email = request.email().trim().toLowerCase();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("Intento de login fallido: email no encontrado = {}", email);
+                    return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
+                });
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            log.warn("Intento de login fallido: contraseña incorrecta userId={} email={}", user.getId(), email);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
         }
+        log.info("Login OK userId={} email={}", user.getId(), email);
         return generateAuthResponse(user);
     }
 
@@ -67,12 +79,17 @@ public class AuthService {
     public AuthResponse refresh(RefreshRequest request) {
         String hash = jwtService.hashToken(request.refreshToken());
         RefreshToken stored = refreshTokenRepository.findByTokenHash(hash)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido"));
+                .orElseThrow(() -> {
+                    log.warn("Refresh token inválido o inexistente");
+                    return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido");
+                });
         if (stored.isRevoked() || stored.getExpiresAt().isBefore(LocalDateTime.now())) {
+            log.warn("Refresh token expirado o revocado userId={}", stored.getUser().getId());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token expirado o revocado");
         }
         stored.setRevoked(true);
         refreshTokenRepository.save(stored);
+        log.info("Refresh OK userId={}", stored.getUser().getId());
         return generateAuthResponse(stored.getUser());
     }
 
@@ -82,6 +99,7 @@ public class AuthService {
         refreshTokenRepository.findByTokenHash(hash).ifPresent(token -> {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
+            log.info("Logout OK userId={}", token.getUser().getId());
         });
     }
 

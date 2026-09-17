@@ -7,6 +7,8 @@ import com.victor.demo.entity.User;
 import com.victor.demo.mapper.PaymentMethodMapper;
 import com.victor.demo.repository.PaymentMethodRepository;
 import com.victor.demo.security.CurrentUserProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Service
 public class PaymentMethodService {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentMethodService.class);
 
     private final PaymentMethodRepository paymentMethodRepository;
     private final CurrentUserProvider currentUserProvider;
@@ -41,6 +45,8 @@ public class PaymentMethodService {
         pm.setCardLastFour(request.cardLastFour());
         pm.setCardBrand(request.cardBrand());
         paymentMethodRepository.save(pm);
+        log.info("Método de pago creado pmId={} userId={} alias={} marca={} terminación={}",
+                pm.getId(), user.getId(), pm.getAlias(), pm.getCardBrand(), pm.getCardLastFour());
         return PaymentMethodMapper.toResponse(pm);
     }
 
@@ -50,8 +56,10 @@ public class PaymentMethodService {
         PaymentMethod pm = paymentMethodRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
         if (!pm.getUser().getId().equals(user.getId())) {
+            log.warn("Método de pago eliminado rechazado: el {} no pertenece al userId={}", id, user.getId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El método de pago no pertenece al usuario actual");
         }
         paymentMethodRepository.delete(pm);
+        log.info("Método de pago eliminado pmId={} userId={}", id, user.getId());
     }
 }

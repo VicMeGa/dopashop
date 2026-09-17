@@ -6,6 +6,8 @@ import com.victor.demo.entity.*;
 import com.victor.demo.mapper.OrderMapper;
 import com.victor.demo.repository.*;
 import com.victor.demo.security.CurrentUserProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
 
 @Service
 public class PaymentService {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
     private final OrderRepository orderRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
@@ -42,15 +46,19 @@ public class PaymentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
 
         if (!order.getUser().getId().equals(user.getId())) {
+            log.warn("Pago: la orden {} no pertenece al userId={}", orderId, user.getId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La orden no pertenece al usuario actual");
         }
         if (order.getStatus() != OrderStatus.PENDING) {
+            log.warn("Pago: orden {} no está en estado PENDING (estado={})", orderId, order.getStatus());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "La orden ya fue pagada o cancelada");
         }
 
         for (OrderItem item : order.getOrderItems()) {
             Product product = item.getProduct();
             if (product.getStock() < item.getQuantity()) {
+                log.warn("Pago: stock insuficiente productId={} disponible={} solicitado={}",
+                        product.getId(), product.getStock(), item.getQuantity());
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                         "Stock insuficiente para el producto: " + product.getTitle()
                                 + " (disponible: " + product.getStock() + ", solicitado: " + item.getQuantity() + ")");
@@ -89,6 +97,14 @@ public class PaymentService {
         }
 
         orderRepository.save(order);
+
+        if (approved) {
+            log.info("Pago aprobado orderId={} txId={} monto={} userId={}",
+                    order.getId(), tx.getId(), order.getTotal(), user.getId());
+        } else {
+            log.warn("Pago rechazado orderId={} txId={} monto={} userId={} (se puede reintentar)",
+                    order.getId(), tx.getId(), order.getTotal(), user.getId());
+        }
 
         OrderResponse orderResponse = OrderMapper.toResponse(order);
         return new PaymentAttemptResponse(tx.getId(), txStatus.name(), message, orderResponse);

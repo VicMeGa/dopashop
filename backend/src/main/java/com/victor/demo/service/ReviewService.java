@@ -11,6 +11,8 @@ import com.victor.demo.repository.OrderItemRepository;
 import com.victor.demo.repository.ProductRepository;
 import com.victor.demo.repository.ReviewRepository;
 import com.victor.demo.security.CurrentUserProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ import java.util.List;
 
 @Service
 public class ReviewService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
 
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
@@ -47,11 +51,13 @@ public class ReviewService {
 
         boolean hasPurchased = orderItemRepository.existsConfirmedPurchase(productId, user.getId());
         if (!hasPurchased) {
+            log.warn("Reseña rechazada: el userId={} no compró el productId={}", user.getId(), productId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Debes haber comprado este producto para poder comentarlo");
         }
 
         if (reviewRepository.existsByProductIdAndUserId(productId, user.getId())) {
+            log.warn("Reseña rechazada: el userId={} ya reseñó el productId={}", user.getId(), productId);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya reseñaste este producto");
         }
 
@@ -62,6 +68,7 @@ public class ReviewService {
         review.setComment(request.comment());
         reviewRepository.save(review);
 
+        log.info("Reseña creada reviewId={} productId={} rating={} userId={}", review.getId(), productId, request.rating(), user.getId());
         return ReviewMapper.toResponse(review);
     }
 

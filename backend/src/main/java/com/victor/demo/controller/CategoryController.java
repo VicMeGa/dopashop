@@ -2,6 +2,8 @@ package com.victor.demo.controller;
 
 import com.victor.demo.dto.response.CategoryResponse;
 import com.victor.demo.service.CategoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,8 @@ import java.util.List;
 @RequestMapping("/api/store")
 public class CategoryController {
 
+    private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
+
     private final CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
@@ -19,11 +23,13 @@ public class CategoryController {
 
     @GetMapping("/categories")
     public List<CategoryResponse> getCategories() {
+        log.debug("[CONTROLLER] GET /api/store/categories");
         return categoryService.findAll();
     }
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<CategoryResponse> getCategory(@PathVariable Long id) {
+        log.debug("[CONTROLLER] GET /api/store/categories/{}", id);
         return ResponseEntity.ok(categoryService.findById(id));
     }
 }

@@ -7,6 +7,8 @@ import com.victor.demo.mapper.OrderMapper;
 import com.victor.demo.mapper.ProductMapper;
 import com.victor.demo.repository.*;
 import com.victor.demo.security.CurrentUserProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import java.util.Set;
 
 @Service
 public class OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
@@ -47,12 +51,14 @@ public class OrderService {
         Address address = addressRepository.findById(request.addressId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dirección no encontrada"));
         if (!address.getUser().getId().equals(user.getId())) {
+            log.warn("Orden: la dirección {} no pertenece al userId={}", request.addressId(), user.getId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La dirección no pertenece al usuario actual");
         }
 
         PaymentMethod paymentMethod = paymentMethodRepository.findById(request.paymentMethodId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
         if (!paymentMethod.getUser().getId().equals(user.getId())) {
+            log.warn("Orden: el método de pago {} no pertenece al userId={}", request.paymentMethodId(), user.getId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El método de pago no pertenece al usuario actual");
         }
 
@@ -71,6 +77,8 @@ public class OrderService {
                             "El producto " + itemReq.productId() + " ya no está disponible"));
 
             if (product.getStock() < itemReq.quantity()) {
+                log.warn("Orden: stock insuficiente productId={} disponible={} solicitado={}",
+                        product.getId(), product.getStock(), itemReq.quantity());
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                         "Stock insuficiente para el producto: " + product.getTitle()
                                 + " (disponible: " + product.getStock() + ", solicitado: " + itemReq.quantity() + ")");
@@ -102,6 +110,8 @@ public class OrderService {
         orderItems.forEach(item -> item.setOrder(order));
         orderRepository.save(order);
 
+        log.info("Orden creada orderId={} userId={} items={} total={}",
+                order.getId(), user.getId(), orderItems.size(), total);
         return OrderMapper.toResponse(order);
     }
 
