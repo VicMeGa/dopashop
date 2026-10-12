@@ -27,6 +27,8 @@ export function validarCodigoPostal(value) {
   return ''
 }
 
+
+//* Tomado de https://github.com/Valencb/IsAvalidadCard/ *//
 export function validarNumeroTarjeta(value) {
   const digits = value.replace(/\D/g, '')
   if (digits.length < 13 || digits.length > 16) return 'Número de tarjeta inválido'
