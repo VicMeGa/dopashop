@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.ejemplo.miapp.data.model.CategoryResponse
 import com.ejemplo.miapp.data.model.ProductResponse
 import com.ejemplo.miapp.data.network.RetrofitClient
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +25,8 @@ data class CatalogUiState(
 class CatalogViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CatalogUiState())
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
+
+    private var searchJob: Job? = null
 
     init {
         loadCategories()
@@ -46,7 +50,7 @@ class CatalogViewModel : ViewModel() {
             try {
                 val state = _uiState.value
                 val products = RetrofitClient.apiService.getProducts(
-                    search = state.searchQuery.ifBlank { null },
+                    title = state.searchQuery.ifBlank { null },
                     categoryId = state.selectedCategoryId
                 )
                 _uiState.update { it.copy(isLoading = false, products = products) }
@@ -63,6 +67,10 @@ class CatalogViewModel : ViewModel() {
 
     fun updateSearchQuery(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
-        loadProducts()
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(300) // 300ms debounce
+            loadProducts()
+        }
     }
 }

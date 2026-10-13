@@ -2,6 +2,7 @@ package com.ejemplo.miapp.ui.catalog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -22,33 +23,43 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ejemplo.miapp.data.model.ProductResponse
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CatalogScreen(viewModel: CatalogViewModel) {
+fun CatalogScreen(
+    viewModel: CatalogViewModel,
+    onProductClick: (Long) -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Scaffold(
-        // topBar = {
-        //     TopAppBar(
-        //         title = {
-        //             Text(
-        //                 text = "dopaPC",
-        //                 fontSize = 24.sp,
-        //                 fontWeight = FontWeight.Bold,
-        //                 color = Color(0xFF08060d)
-        //             )
-        //         },
-        //         colors = TopAppBarDefaults.topAppBarColors(
-        //             containerColor = Color.White
-        //         )
-        //     )
-        // }
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFffffff))
+    ) {
+        // Header
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = Color.White,
+            tonalElevation = 2.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "dopaPC",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF08060d)
+                )
+            }
+        }
+
+        // Body content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .background(Color(0xFFffffff))
                 .padding(16.dp)
         ) {
             // Full-width Search Bar
@@ -136,7 +147,7 @@ fun CatalogScreen(viewModel: CatalogViewModel) {
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(uiState.products) { product ->
-                                ProductItemCard(product = product)
+                                ProductItemCard(product = product, onClick = { onProductClick(product.id) })
                             }
                         }
                     }
@@ -147,7 +158,7 @@ fun CatalogScreen(viewModel: CatalogViewModel) {
 }
 
 @Composable
-fun ProductItemCard(product: ProductResponse) {
+fun ProductItemCard(product: ProductResponse, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -155,6 +166,7 @@ fun ProductItemCard(product: ProductResponse) {
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, Color(0xFFe5e4e7), RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
     ) {
         Column {
             val imageUrl = product.images.firstOrNull() ?: ""
