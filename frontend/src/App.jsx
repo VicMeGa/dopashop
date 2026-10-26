@@ -15,7 +15,6 @@ function App() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedProduct, setSelectedProduct] = useState(null)
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
 
@@ -36,12 +35,10 @@ function App() {
   }, [debouncedSearch, categoryId])
 
   function handleSelect(product) {
-    setSelectedProduct(product)
     navigate(`/product/${product.id}`)
   }
 
   function handleBack() {
-    setSelectedProduct(null)
     navigate('/')
   }
 
@@ -56,7 +53,6 @@ function App() {
   }
 
   function handleBackToCatalog() {
-    setSelectedProduct(null)
     navigate('/')
   }
 
@@ -151,7 +147,6 @@ function App() {
         products={products}
         loading={loading}
         categories={categories}
-        selectedProduct={selectedProduct}
         cart={cart}
         onSelect={handleSelect}
         onBack={handleBack}

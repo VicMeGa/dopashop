@@ -15,6 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -26,23 +28,26 @@ public class PaymentService {
     private final ProductRepository productRepository;
     private final ShipmentRepository shipmentRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final SecureRandom secureRandom;
 
     public PaymentService(OrderRepository orderRepository,
                           PaymentTransactionRepository paymentTransactionRepository,
                           ProductRepository productRepository,
                           ShipmentRepository shipmentRepository,
-                          CurrentUserProvider currentUserProvider) {
+                          CurrentUserProvider currentUserProvider,
+                          SecureRandom secureRandom) {
         this.orderRepository = orderRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.productRepository = productRepository;
         this.shipmentRepository = shipmentRepository;
         this.currentUserProvider = currentUserProvider;
+        this.secureRandom = secureRandom;
     }
 
     @Transactional
     public PaymentAttemptResponse attemptPayment(Long orderId) {
         User user = currentUserProvider.getCurrentUser();
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdForUpdate(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -54,33 +59,22 @@ public class PaymentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "La orden ya fue pagada o cancelada");
         }
 
-        for (OrderItem item : order.getOrderItems()) {
-            Product product = item.getProduct();
-            if (product.getStock() < item.getQuantity()) {
-                log.warn("Pago: stock insuficiente productId={} disponible={} solicitado={}",
-                        product.getId(), product.getStock(), item.getQuantity());
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                        "Stock insuficiente para el producto: " + product.getTitle()
-                                + " (disponible: " + product.getStock() + ", solicitado: " + item.getQuantity() + ")");
-            }
-        }
-
-        boolean approved = new SecureRandom().nextInt(100) < 90;
+        boolean approved = secureRandom.nextInt(100) < 90;
         PaymentTransactionStatus txStatus = approved ? PaymentTransactionStatus.APPROVED : PaymentTransactionStatus.REJECTED;
-
-        PaymentTransaction tx = new PaymentTransaction();
-        tx.setOrder(order);
-        tx.setStatus(txStatus);
-        tx.setAmount(order.getTotal());
-        tx.setProcessedAt(LocalDateTime.now());
-        paymentTransactionRepository.save(tx);
 
         String message;
         if (approved) {
-            for (OrderItem item : order.getOrderItems()) {
-                Product product = item.getProduct();
-                product.setStock(product.getStock() - item.getQuantity());
-                productRepository.save(product);
+            List<OrderItem> items = order.getOrderItems().stream()
+                    .sorted(Comparator.comparing(item -> item.getProduct().getId()))
+                    .toList();
+            for (OrderItem item : items) {
+                int updated = productRepository.decrementStock(item.getProduct().getId(), item.getQuantity());
+                if (updated == 0) {
+                    log.warn("Pago: stock insuficiente productId={} solicitado={}",
+                            item.getProduct().getId(), item.getQuantity());
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                            "Stock insuficiente para el producto: " + item.getProductTitle());
+                }
             }
             order.setStatus(OrderStatus.CONFIRMED);
 
@@ -95,6 +89,13 @@ public class PaymentService {
         } else {
             message = "Pago rechazado — puedes reintentarlo";
         }
+
+        PaymentTransaction tx = new PaymentTransaction();
+        tx.setOrder(order);
+        tx.setStatus(txStatus);
+        tx.setAmount(order.getTotal());
+        tx.setProcessedAt(LocalDateTime.now());
+        paymentTransactionRepository.save(tx);
 
         orderRepository.save(order);
 
@@ -112,7 +113,7 @@ public class PaymentService {
 
     private String generateTrackingCode() {
         byte[] bytes = new byte[8];
-        new SecureRandom().nextBytes(bytes);
+        secureRandom.nextBytes(bytes);
         StringBuilder sb = new StringBuilder("TRK-");
         for (byte b : bytes) {
             sb.append(Integer.toHexString((b & 0xFF) + 0x100).substring(1, 3));

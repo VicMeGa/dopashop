@@ -13,7 +13,7 @@ import StoreProfilePage from '../pages/store-profile/StoreProfilePage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 
-export default function AppRoutes({ products, loading, categories, selectedProduct, cart, onSelect, onBack, onAddToCart, onBackToCart, clearCart, onBackToCatalog }) {
+export default function AppRoutes({ products, loading, categories, cart, onSelect, onBack, onAddToCart, onBackToCart, clearCart, onBackToCatalog }) {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -34,7 +34,6 @@ export default function AppRoutes({ products, loading, categories, selectedProdu
         path="/product/:id"
         element={
           <ProductDetailPage
-            product={selectedProduct}
             onBack={onBack}
             onAddToCart={onAddToCart}
           />
