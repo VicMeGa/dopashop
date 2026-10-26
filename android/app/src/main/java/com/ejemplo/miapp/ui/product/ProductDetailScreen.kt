@@ -149,7 +149,7 @@ fun ProductDetailScreen(
 
                         // Description body
                         Text(
-                            text = product.description,
+                            text = product.description?.takeIf { it.isNotBlank() } ?: "Sin descripción",
                             fontSize = 14.sp,
                             color = Color(0xFF6b6375),
                             lineHeight = 20.sp

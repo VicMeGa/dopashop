@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ejemplo.miapp.data.model.CategoryResponse
 import com.ejemplo.miapp.data.model.ProductResponse
 import com.ejemplo.miapp.data.network.RetrofitClient
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,7 @@ class CatalogViewModel : ViewModel() {
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
 
     private var searchJob: Job? = null
+    private var loadJob: Job? = null
 
     init {
         loadCategories()
@@ -39,13 +41,15 @@ class CatalogViewModel : ViewModel() {
                 val categories = RetrofitClient.apiService.getCategories()
                 _uiState.update { it.copy(categories = categories) }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 // Ignore category load error for now
             }
         }
     }
 
     fun loadProducts() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             try {
                 val state = _uiState.value
@@ -55,12 +59,14 @@ class CatalogViewModel : ViewModel() {
                 )
                 _uiState.update { it.copy(isLoading = false, products = products) }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 _uiState.update { it.copy(isLoading = false, errorMessage = e.localizedMessage ?: "Error al cargar productos") }
             }
         }
     }
 
     fun selectCategory(categoryId: Long?) {
+        searchJob?.cancel()
         _uiState.update { it.copy(selectedCategoryId = if (it.selectedCategoryId == categoryId) null else categoryId) }
         loadProducts()
     }
