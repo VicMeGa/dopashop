@@ -1,9 +1,10 @@
 package com.ejemplo.miapp.ui.product
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ejemplo.miapp.DopapcApplication
 import com.ejemplo.miapp.data.model.ProductResponse
-import com.ejemplo.miapp.data.network.RetrofitClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,8 @@ data class ProductDetailUiState(
     val errorMessage: String? = null
 )
 
-class ProductDetailViewModel : ViewModel() {
+class ProductDetailViewModel(application: Application) : AndroidViewModel(application) {
+    private val apiService = getApplication<DopapcApplication>().container.apiService
     private val _uiState = MutableStateFlow(ProductDetailUiState())
     val uiState: StateFlow<ProductDetailUiState> = _uiState.asStateFlow()
 
@@ -29,7 +31,7 @@ class ProductDetailViewModel : ViewModel() {
         loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             try {
-                val product = RetrofitClient.apiService.getProductById(productId)
+                val product = apiService.getProductById(productId)
                 _uiState.update { it.copy(isLoading = false, product = product) }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e

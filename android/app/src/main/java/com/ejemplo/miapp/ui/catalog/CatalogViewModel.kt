@@ -1,10 +1,11 @@
 package com.ejemplo.miapp.ui.catalog
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ejemplo.miapp.DopapcApplication
 import com.ejemplo.miapp.data.model.CategoryResponse
 import com.ejemplo.miapp.data.model.ProductResponse
-import com.ejemplo.miapp.data.network.RetrofitClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -23,7 +24,8 @@ data class CatalogUiState(
     val errorMessage: String? = null
 )
 
-class CatalogViewModel : ViewModel() {
+class CatalogViewModel(application: Application) : AndroidViewModel(application) {
+    private val apiService = getApplication<DopapcApplication>().container.apiService
     private val _uiState = MutableStateFlow(CatalogUiState())
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
 
@@ -38,7 +40,7 @@ class CatalogViewModel : ViewModel() {
     fun loadCategories() {
         viewModelScope.launch {
             try {
-                val categories = RetrofitClient.apiService.getCategories()
+                val categories = apiService.getCategories()
                 _uiState.update { it.copy(categories = categories) }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -53,7 +55,7 @@ class CatalogViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             try {
                 val state = _uiState.value
-                val products = RetrofitClient.apiService.getProducts(
+                val products = apiService.getProducts(
                     title = state.searchQuery.ifBlank { null },
                     categoryId = state.selectedCategoryId
                 )

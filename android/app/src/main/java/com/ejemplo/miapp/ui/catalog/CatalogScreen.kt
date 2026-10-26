@@ -22,10 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ejemplo.miapp.data.model.ProductResponse
+import com.ejemplo.miapp.data.model.UserSummary
 
 @Composable
 fun CatalogScreen(
     viewModel: CatalogViewModel,
+    user: UserSummary?,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     onProductClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -34,6 +39,7 @@ fun CatalogScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFffffff))
+            .safeDrawingPadding()
     ) {
         // Header
         Surface(
@@ -53,6 +59,36 @@ fun CatalogScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF08060d)
                 )
+                Spacer(modifier = Modifier.weight(1f))
+                if (user == null) {
+                    TextButton(
+                        onClick = onLoginClick,
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        Text("Iniciar sesión", fontSize = 12.sp)
+                    }
+                    TextButton(
+                        onClick = onRegisterClick,
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        Text("Registrarse", fontSize = 12.sp)
+                    }
+                } else {
+                    Text(
+                        text = user.fullName,
+                        fontSize = 12.sp,
+                        color = Color(0xFF6b6375),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.widthIn(max = 110.dp)
+                    )
+                    TextButton(
+                        onClick = onLogoutClick,
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        Text("Salir", fontSize = 12.sp)
+                    }
+                }
             }
         }
 
