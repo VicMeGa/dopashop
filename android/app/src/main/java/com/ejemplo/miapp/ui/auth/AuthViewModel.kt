@@ -26,6 +26,22 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
+    private var pendingRedirect: String? = null
+
+    fun setRedirect(route: String) {
+        pendingRedirect = route
+    }
+
+    fun consumeRedirect(): String? {
+        val redirect = pendingRedirect
+        pendingRedirect = null
+        return redirect
+    }
+
+    fun clearRedirect() {
+        pendingRedirect = null
+    }
+
     fun login(email: String, password: String) = submit {
         repository.login(email, password)
     }

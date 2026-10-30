@@ -18,8 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.ejemplo.miapp.ui.auth.AuthViewModel
+import com.ejemplo.miapp.ui.cart.CartViewModel
 import com.ejemplo.miapp.ui.catalog.CatalogViewModel
 import com.ejemplo.miapp.ui.navigation.AppNavHost
+import com.ejemplo.miapp.ui.navigation.MainScaffold
 import com.ejemplo.miapp.ui.product.ProductDetailViewModel
 import com.ejemplo.miapp.ui.theme.DopaPcTheme
 
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
     private val catalogViewModel: CatalogViewModel by viewModels()
     private val productDetailViewModel: ProductDetailViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
+    private val cartViewModel: CartViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
@@ -42,6 +45,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val isSessionReady by authViewModel.isSessionReady.collectAsStateWithLifecycle()
+            val session by authViewModel.session.collectAsStateWithLifecycle()
+            val cartItems by cartViewModel.items.collectAsStateWithLifecycle()
             val navController = rememberNavController()
 
             DopaPcTheme {
@@ -54,12 +59,28 @@ class MainActivity : ComponentActivity() {
                             CircularProgressIndicator(color = Color(0xFF2563eb))
                         }
                     } else {
-                        AppNavHost(
+                        MainScaffold(
                             navController = navController,
-                            catalogViewModel = catalogViewModel,
-                            productDetailViewModel = productDetailViewModel,
-                            authViewModel = authViewModel
-                        )
+                            session = session,
+                            cartCount = cartItems.sumOf { it.quantity },
+                            onLogin = {
+                                authViewModel.clearRedirect()
+                                navController.navigate("login") { launchSingleTop = true }
+                            },
+                            onRegister = {
+                                authViewModel.clearRedirect()
+                                navController.navigate("register") { launchSingleTop = true }
+                            },
+                            onLogout = { authViewModel.logout() }
+                        ) {
+                            AppNavHost(
+                                navController = navController,
+                                catalogViewModel = catalogViewModel,
+                                productDetailViewModel = productDetailViewModel,
+                                authViewModel = authViewModel,
+                                cartViewModel = cartViewModel
+                            )
+                        }
                     }
                 }
             }

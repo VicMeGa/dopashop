@@ -1,5 +1,6 @@
 package com.ejemplo.miapp.ui.auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,6 +49,8 @@ fun AuthScreen(
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
     var fieldErrors by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+
+    BackHandler(onBack = onBack)
 
     LaunchedEffect(session) {
         if (session != null) onSuccess()

@@ -22,16 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ejemplo.miapp.data.model.ProductResponse
-import com.ejemplo.miapp.data.model.UserSummary
 
 @Composable
 fun CatalogScreen(
     viewModel: CatalogViewModel,
-    user: UserSummary?,
-    onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit,
-    onLogoutClick: () -> Unit,
-    onProductClick: (Long) -> Unit
+    onProductClick: (Long) -> Unit,
+    onAddToCart: (ProductResponse) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -39,60 +35,7 @@ fun CatalogScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFffffff))
-            .safeDrawingPadding()
     ) {
-        // Header
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = Color.White,
-            tonalElevation = 2.dp
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "dopaPC",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF08060d)
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                if (user == null) {
-                    TextButton(
-                        onClick = onLoginClick,
-                        contentPadding = PaddingValues(horizontal = 8.dp)
-                    ) {
-                        Text("Iniciar sesión", fontSize = 12.sp)
-                    }
-                    TextButton(
-                        onClick = onRegisterClick,
-                        contentPadding = PaddingValues(horizontal = 8.dp)
-                    ) {
-                        Text("Registrarse", fontSize = 12.sp)
-                    }
-                } else {
-                    Text(
-                        text = user.fullName,
-                        fontSize = 12.sp,
-                        color = Color(0xFF6b6375),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.widthIn(max = 110.dp)
-                    )
-                    TextButton(
-                        onClick = onLogoutClick,
-                        contentPadding = PaddingValues(horizontal = 8.dp)
-                    ) {
-                        Text("Salir", fontSize = 12.sp)
-                    }
-                }
-            }
-        }
-
-        // Body content
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -183,7 +126,11 @@ fun CatalogScreen(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(uiState.products) { product ->
-                                ProductItemCard(product = product, onClick = { onProductClick(product.id) })
+                                ProductItemCard(
+                                    product = product,
+                                    onClick = { onProductClick(product.id) },
+                                    onAddToCart = { onAddToCart(product) }
+                                )
                             }
                         }
                     }
@@ -194,7 +141,11 @@ fun CatalogScreen(
 }
 
 @Composable
-fun ProductItemCard(product: ProductResponse, onClick: () -> Unit) {
+fun ProductItemCard(
+    product: ProductResponse,
+    onClick: () -> Unit,
+    onAddToCart: () -> Unit
+) {
     Card(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -262,6 +213,26 @@ fun ProductItemCard(product: ProductResponse, onClick: () -> Unit) {
                     color = if (product.stock > 0) Color(0xFF22c55e) else Color(0xFFe74c3c),
                     fontWeight = FontWeight.Medium
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = onAddToCart,
+                    enabled = product.stock > 0,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2563eb),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = if (product.stock > 0) "Agregar" else "Sin stock",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
