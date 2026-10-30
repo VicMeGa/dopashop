@@ -1,22 +1,18 @@
 package com.ejemplo.miapp.data.auth
 
-import com.ejemplo.miapp.data.model.ApiError
 import com.ejemplo.miapp.data.model.AuthResponse
 import com.ejemplo.miapp.data.model.LoginRequest
 import com.ejemplo.miapp.data.model.LogoutRequest
 import com.ejemplo.miapp.data.model.RegisterRequest
 import com.ejemplo.miapp.data.model.Session
+import com.ejemplo.miapp.data.network.ApiErrorParser
 import com.ejemplo.miapp.data.network.AuthApiService
 import com.ejemplo.miapp.data.session.SessionStore
-import com.google.gson.Gson
 import kotlinx.coroutines.CancellationException
-import retrofit2.HttpException
-import java.io.IOException
 
 class AuthRepository(
     private val authApi: AuthApiService,
-    private val sessionStore: SessionStore,
-    private val gson: Gson = Gson()
+    private val sessionStore: SessionStore
 ) {
     val session = sessionStore.session
     val isSessionReady = sessionStore.isReady
@@ -54,7 +50,13 @@ class AuthRepository(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            throw AuthException(errorMessage(e, fallback))
+            throw AuthException(
+                ApiErrorParser.message(
+                    error = e,
+                    fallback = fallback,
+                    unauthorizedMessage = "Credenciales inválidas"
+                )
+            )
         }
         val session = Session(
             accessToken = response.accessToken,
@@ -63,22 +65,6 @@ class AuthRepository(
         )
         sessionStore.save(session)
         return session
-    }
-
-    private fun errorMessage(error: Exception, fallback: String): String {
-        if (error is HttpException) {
-            val body = error.response()?.errorBody()?.string()
-            if (!body.isNullOrBlank()) {
-                val apiError = runCatching {
-                    gson.fromJson(body, ApiError::class.java)
-                }.getOrNull()
-                apiError?.message?.takeIf { it.isNotBlank() }?.let { return it }
-                apiError?.error?.takeIf { it.isNotBlank() }?.let { return it }
-            }
-            if (error.code() == 401) return "Credenciales inválidas"
-        }
-        if (error is IOException) return "No se pudo conectar con el servidor"
-        return fallback
     }
 }
 

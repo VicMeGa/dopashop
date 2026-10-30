@@ -61,7 +61,6 @@ class AppContainer(context: Context) {
 
     val authRepository = AuthRepository(
         authApi = authApi,
-        sessionStore = sessionStore,
-        gson = gson
+        sessionStore = sessionStore
     )
 }
