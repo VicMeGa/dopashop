@@ -10,6 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ejemplo.miapp.data.model.Session
+import com.ejemplo.miapp.ui.addresses.AddressesScreen
+import com.ejemplo.miapp.ui.addresses.AddressesViewModel
 import com.ejemplo.miapp.ui.auth.AuthMode
 import com.ejemplo.miapp.ui.auth.AuthScreen
 import com.ejemplo.miapp.ui.auth.AuthViewModel
@@ -18,6 +20,8 @@ import com.ejemplo.miapp.ui.cart.CartViewModel
 import com.ejemplo.miapp.ui.catalog.CatalogScreen
 import com.ejemplo.miapp.ui.catalog.CatalogViewModel
 import com.ejemplo.miapp.ui.common.PlaceholderScreen
+import com.ejemplo.miapp.ui.payments.PaymentMethodsScreen
+import com.ejemplo.miapp.ui.payments.PaymentMethodsViewModel
 import com.ejemplo.miapp.ui.product.ProductDetailScreen
 import com.ejemplo.miapp.ui.product.ProductDetailViewModel
 
@@ -27,7 +31,9 @@ fun AppNavHost(
     catalogViewModel: CatalogViewModel,
     productDetailViewModel: ProductDetailViewModel,
     authViewModel: AuthViewModel,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    addressesViewModel: AddressesViewModel,
+    paymentMethodsViewModel: PaymentMethodsViewModel
 ) {
     val session by authViewModel.session.collectAsStateWithLifecycle()
 
@@ -106,7 +112,7 @@ fun AppNavHost(
                 redirect = "addresses",
                 onRequireAuth = requireLogin
             ) {
-                PlaceholderScreen("Tus direcciones estarán disponibles en la próxima fase.")
+                AddressesScreen(viewModel = addressesViewModel)
             }
         }
 
@@ -116,7 +122,7 @@ fun AppNavHost(
                 redirect = "payment-methods",
                 onRequireAuth = requireLogin
             ) {
-                PlaceholderScreen("Tus métodos de pago estarán disponibles en la próxima fase.")
+                PaymentMethodsScreen(viewModel = paymentMethodsViewModel)
             }
         }
 

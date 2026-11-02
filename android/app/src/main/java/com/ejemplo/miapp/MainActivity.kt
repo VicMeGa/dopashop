@@ -17,11 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.ejemplo.miapp.ui.addresses.AddressesViewModel
 import com.ejemplo.miapp.ui.auth.AuthViewModel
 import com.ejemplo.miapp.ui.cart.CartViewModel
 import com.ejemplo.miapp.ui.catalog.CatalogViewModel
 import com.ejemplo.miapp.ui.navigation.AppNavHost
 import com.ejemplo.miapp.ui.navigation.MainScaffold
+import com.ejemplo.miapp.ui.payments.PaymentMethodsViewModel
 import com.ejemplo.miapp.ui.product.ProductDetailViewModel
 import com.ejemplo.miapp.ui.theme.DopaPcTheme
 
@@ -30,6 +32,8 @@ class MainActivity : ComponentActivity() {
     private val productDetailViewModel: ProductDetailViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
     private val cartViewModel: CartViewModel by viewModels()
+    private val addressesViewModel: AddressesViewModel by viewModels()
+    private val paymentMethodsViewModel: PaymentMethodsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
@@ -78,7 +82,9 @@ class MainActivity : ComponentActivity() {
                                 catalogViewModel = catalogViewModel,
                                 productDetailViewModel = productDetailViewModel,
                                 authViewModel = authViewModel,
-                                cartViewModel = cartViewModel
+                                cartViewModel = cartViewModel,
+                                addressesViewModel = addressesViewModel,
+                                paymentMethodsViewModel = paymentMethodsViewModel
                             )
                         }
                     }
