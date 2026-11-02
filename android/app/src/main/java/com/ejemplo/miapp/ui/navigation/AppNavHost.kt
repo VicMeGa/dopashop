@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,7 +20,13 @@ import com.ejemplo.miapp.ui.cart.CartScreen
 import com.ejemplo.miapp.ui.cart.CartViewModel
 import com.ejemplo.miapp.ui.catalog.CatalogScreen
 import com.ejemplo.miapp.ui.catalog.CatalogViewModel
-import com.ejemplo.miapp.ui.common.PlaceholderScreen
+import com.ejemplo.miapp.ui.checkout.CheckoutScreen
+import com.ejemplo.miapp.ui.checkout.CheckoutViewModel
+import com.ejemplo.miapp.ui.orders.OrderConfirmedScreen
+import com.ejemplo.miapp.ui.orders.OrderDetailScreen
+import com.ejemplo.miapp.ui.orders.OrderDetailViewModel
+import com.ejemplo.miapp.ui.orders.OrdersScreen
+import com.ejemplo.miapp.ui.orders.OrdersViewModel
 import com.ejemplo.miapp.ui.payments.PaymentMethodsScreen
 import com.ejemplo.miapp.ui.payments.PaymentMethodsViewModel
 import com.ejemplo.miapp.ui.product.ProductDetailScreen
@@ -92,7 +99,25 @@ fun AppNavHost(
                 redirect = "checkout",
                 onRequireAuth = requireLogin
             ) {
-                PlaceholderScreen("El checkout se implementa en la próxima fase.")
+                val viewModel: CheckoutViewModel = viewModel()
+                CheckoutScreen(
+                    viewModel = viewModel,
+                    cartViewModel = cartViewModel,
+                    onBackToCart = {
+                        if (!navController.popBackStack("cart", inclusive = false)) {
+                            navController.navigate("cart") { launchSingleTop = true }
+                        }
+                    },
+                    onManageAddresses = { navController.navigate("addresses") },
+                    onManagePayments = { navController.navigate("payment-methods") },
+                    onOrderConfirmed = { orderId ->
+                        cartViewModel.clear()
+                        navController.navigate("order-confirmed/$orderId") {
+                            popUpTo("catalog") { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
         }
 
@@ -102,7 +127,60 @@ fun AppNavHost(
                 redirect = "orders",
                 onRequireAuth = requireLogin
             ) {
-                PlaceholderScreen("Tus órdenes estarán disponibles en la próxima fase.")
+                val viewModel: OrdersViewModel = viewModel()
+                OrdersScreen(
+                    viewModel = viewModel,
+                    onOrderClick = { orderId ->
+                        navController.navigate("orders/$orderId")
+                    },
+                    onGoToCatalog = {
+                        if (!navController.popBackStack("catalog", inclusive = false)) {
+                            navController.navigate("catalog") { launchSingleTop = true }
+                        }
+                    }
+                )
+            }
+        }
+
+        composable(
+            route = "orders/{orderId}",
+            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+        ) { entry ->
+            val orderId = entry.arguments?.getLong("orderId") ?: return@composable
+            RequireAuth(
+                session = session,
+                redirect = "orders/$orderId",
+                onRequireAuth = requireLogin
+            ) {
+                val viewModel: OrderDetailViewModel = viewModel()
+                OrderDetailScreen(
+                    viewModel = viewModel,
+                    orderId = orderId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        composable(
+            route = "order-confirmed/{orderId}",
+            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+        ) { entry ->
+            val orderId = entry.arguments?.getLong("orderId") ?: return@composable
+            RequireAuth(
+                session = session,
+                redirect = "order-confirmed/$orderId",
+                onRequireAuth = requireLogin
+            ) {
+                val viewModel: OrderDetailViewModel = viewModel()
+                OrderConfirmedScreen(
+                    viewModel = viewModel,
+                    orderId = orderId,
+                    onBackToCatalog = {
+                        if (!navController.popBackStack("catalog", inclusive = false)) {
+                            navController.navigate("catalog") { launchSingleTop = true }
+                        }
+                    }
+                )
             }
         }
 

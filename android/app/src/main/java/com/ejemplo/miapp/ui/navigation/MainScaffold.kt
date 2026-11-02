@@ -41,7 +41,9 @@ fun MainScaffold(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val route = backStackEntry?.destination?.route
     val isAuthRoute = route == "login" || route == "register"
-    val isProductDetail = route == "product/{productId}"
+    val isDetailRoute = route == "product/{productId}" ||
+        route == "orders/{orderId}" ||
+        route == "order-confirmed/{orderId}"
 
     fun closeDrawer() {
         scope.launch { drawerState.close() }
@@ -92,7 +94,7 @@ fun MainScaffold(
                             )
                         },
                         navigationIcon = {
-                            if (isProductDetail) {
+                            if (isDetailRoute) {
                                 IconButton(onClick = { navController.popBackStack() }) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -274,5 +276,7 @@ private fun titleForRoute(route: String?): String = when (route) {
     "addresses" -> "Direcciones"
     "payment-methods" -> "Métodos de pago"
     "product/{productId}" -> "Detalle de producto"
+    "orders/{orderId}" -> "Detalle de orden"
+    "order-confirmed/{orderId}" -> "Compra confirmada"
     else -> "dopaPC"
 }

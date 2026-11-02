@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import java.util.Locale
+import com.ejemplo.miapp.ui.common.formatPrice
 
 @Composable
 fun CartScreen(
@@ -239,5 +239,3 @@ private fun CartFooter(
     }
 }
 
-private fun formatPrice(value: Double): String =
-    String.format(Locale.US, "\$%.2f", value)
