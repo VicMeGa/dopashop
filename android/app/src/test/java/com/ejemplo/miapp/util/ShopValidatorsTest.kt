@@ -81,4 +81,22 @@ class ShopValidatorsTest {
         )
         assertNull(ShopValidators.alias("Mi Visa principal"))
     }
+
+    @Test
+    fun reviewRatingMustBeBetweenOneAndFive() {
+        assertEquals("Seleccioná una calificación", ShopValidators.reviewRating(0))
+        assertEquals("Seleccioná una calificación", ShopValidators.reviewRating(6))
+        assertNull(ShopValidators.reviewRating(1))
+        assertNull(ShopValidators.reviewRating(5))
+    }
+
+    @Test
+    fun reviewCommentIsOptionalButLimitedToTwoThousandCharacters() {
+        assertNull(ShopValidators.reviewComment(""))
+        assertNull(ShopValidators.reviewComment("a".repeat(2000)))
+        assertEquals(
+            "El comentario no puede superar los 2000 caracteres",
+            ShopValidators.reviewComment("a".repeat(2001))
+        )
+    }
 }

@@ -21,7 +21,9 @@ import com.ejemplo.miapp.data.model.ProductResponse
 fun ProductDetailScreen(
     viewModel: ProductDetailViewModel,
     onBackClick: () -> Unit,
-    onAddToCart: (ProductResponse) -> Unit
+    onAddToCart: (ProductResponse) -> Unit,
+    isAuthenticated: Boolean,
+    onLoginClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -160,6 +162,21 @@ fun ProductDetailScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    HorizontalDivider(color = Color(0xFFe5e4e7))
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ProductReviewsSection(
+                        productId = product.id,
+                        reviewsState = uiState.reviews,
+                        isAuthenticated = isAuthenticated,
+                        onRetry = { viewModel.loadReviews(product.id) },
+                        onLoginClick = onLoginClick,
+                        onSubmitReview = viewModel::submitReview
+                    )
 
                     Spacer(modifier = Modifier.height(32.dp))
                 }

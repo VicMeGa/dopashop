@@ -79,7 +79,9 @@ fun AppNavHost(
             ProductDetailScreen(
                 viewModel = productDetailViewModel,
                 onBackClick = { navController.popBackStack() },
-                onAddToCart = cartViewModel::add
+                onAddToCart = cartViewModel::add,
+                isAuthenticated = session != null,
+                onLoginClick = { requireLogin("product/$productId") }
             )
         }
 

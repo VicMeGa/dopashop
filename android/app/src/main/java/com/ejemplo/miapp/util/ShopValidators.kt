@@ -65,6 +65,12 @@ object ShopValidators {
 
     fun alias(value: String): String? = AuthValidators.maxLength(value, 60, "El alias")
 
+    fun reviewRating(rating: Int): String? =
+        if (rating !in 1..5) "Seleccioná una calificación" else null
+
+    fun reviewComment(value: String): String? =
+        AuthValidators.maxLength(value, 2000, "El comentario")
+
     fun cardBrand(cardNumber: String): String {
         val digits = cardNumber.filter(Char::isDigit)
         return when {

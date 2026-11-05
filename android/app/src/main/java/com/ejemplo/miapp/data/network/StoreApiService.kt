@@ -4,11 +4,14 @@ import com.ejemplo.miapp.data.model.AddressRequest
 import com.ejemplo.miapp.data.model.AddressResponse
 import com.ejemplo.miapp.data.model.CategoryResponse
 import com.ejemplo.miapp.data.model.CreateOrderRequest
+import com.ejemplo.miapp.data.model.CreateReviewRequest
 import com.ejemplo.miapp.data.model.OrderResponse
 import com.ejemplo.miapp.data.model.PaymentAttemptResponse
 import com.ejemplo.miapp.data.model.PaymentMethodRequest
 import com.ejemplo.miapp.data.model.PaymentMethodResponse
+import com.ejemplo.miapp.data.model.ReviewResponse
 import com.ejemplo.miapp.data.model.ProductResponse
+import com.ejemplo.miapp.data.model.ProductReviewsSummaryResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -66,4 +69,15 @@ interface StoreApiService {
 
     @GET("api/orders/{id}")
     suspend fun getOrderById(@Path("id") id: Long): OrderResponse
+
+    @GET("api/products/{productId}/reviews")
+    suspend fun getProductReviews(
+        @Path("productId") productId: Long
+    ): ProductReviewsSummaryResponse
+
+    @POST("api/products/{productId}/reviews")
+    suspend fun createReview(
+        @Path("productId") productId: Long,
+        @Body request: CreateReviewRequest
+    ): ReviewResponse
 }
