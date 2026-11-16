@@ -5,19 +5,26 @@ import com.ejemplo.miapp.data.model.AddressResponse
 import com.ejemplo.miapp.data.model.CategoryResponse
 import com.ejemplo.miapp.data.model.CreateOrderRequest
 import com.ejemplo.miapp.data.model.CreateReviewRequest
+import com.ejemplo.miapp.data.model.ImageUploadResponse
 import com.ejemplo.miapp.data.model.OrderResponse
 import com.ejemplo.miapp.data.model.PaymentAttemptResponse
 import com.ejemplo.miapp.data.model.PaymentMethodRequest
 import com.ejemplo.miapp.data.model.PaymentMethodResponse
+import com.ejemplo.miapp.data.model.ProductUpsertRequest
 import com.ejemplo.miapp.data.model.ReviewResponse
 import com.ejemplo.miapp.data.model.ProductResponse
 import com.ejemplo.miapp.data.model.ProductReviewsSummaryResponse
+import com.ejemplo.miapp.data.model.StoreRequest
+import com.ejemplo.miapp.data.model.StoreResponse
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -33,6 +40,34 @@ interface StoreApiService {
 
     @GET("api/store/categories")
     suspend fun getCategories(): List<CategoryResponse>
+
+    @GET("api/stores/mine")
+    suspend fun getMyStore(): Response<StoreResponse>
+
+    @POST("api/stores")
+    suspend fun createStore(@Body request: StoreRequest): StoreResponse
+
+    @Multipart
+    @POST("api/stores/mine/images")
+    suspend fun uploadImage(@Part file: MultipartBody.Part): ImageUploadResponse
+
+    @GET("api/stores/mine/products")
+    suspend fun getMyProducts(): List<ProductResponse>
+
+    @POST("api/stores/mine/products")
+    suspend fun createProduct(@Body request: ProductUpsertRequest): ProductResponse
+
+    @PUT("api/stores/mine/products/{id}")
+    suspend fun updateProduct(
+        @Path("id") id: Long,
+        @Body request: ProductUpsertRequest
+    ): ProductResponse
+
+    @DELETE("api/stores/mine/products/{id}")
+    suspend fun deleteProduct(@Path("id") id: Long): Response<Unit>
+
+    @PUT("api/stores/mine/products/{id}/reactivate")
+    suspend fun reactivateProduct(@Path("id") id: Long): Response<Unit>
 
     @GET("api/addresses")
     suspend fun getAddresses(): List<AddressResponse>

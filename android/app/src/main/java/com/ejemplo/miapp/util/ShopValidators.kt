@@ -4,6 +4,7 @@ import java.time.YearMonth
 
 object ShopValidators {
     private val ZIP_CODE_REGEX = Regex("^[A-Za-z0-9\\s-]{1,20}$")
+    private val PRODUCT_PRICE_REGEX = Regex("^\\d+(\\.\\d{1,2})?$")
 
     fun street(value: String): String? =
         requiredMax(value, 200, "La calle", "La calle es obligatoria")
@@ -23,6 +24,46 @@ object ShopValidators {
             "El código postal solo puede contener letras, números, espacios y guiones"
         else -> null
     }
+
+    fun storeName(value: String): String? =
+        AuthValidators.required(value, "El nombre de la tienda")
+            ?: AuthValidators.maxLength(value, 120, "El nombre de la tienda")
+
+    fun storeDescription(value: String): String? =
+        AuthValidators.maxLength(value, 4000, "La descripción")
+
+    fun productTitle(value: String): String? =
+        AuthValidators.required(value, "El título")
+            ?: AuthValidators.maxLength(value, 200, "El título")
+
+    fun productDescription(value: String): String? =
+        AuthValidators.maxLength(value, 4000, "La descripción")
+
+    fun productPrice(value: String): String? {
+        val trimmed = value.trim()
+        val price = trimmed.toDoubleOrNull()
+        if (price == null || price <= 0.0) {
+            return "El precio debe ser un número mayor a 0"
+        }
+        if (!PRODUCT_PRICE_REGEX.matches(trimmed)) {
+            return "El precio no puede tener más de 2 decimales"
+        }
+        return null
+    }
+
+    fun productStock(value: String): String? {
+        val trimmed = value.trim()
+        if (trimmed.isEmpty()) return "El stock es obligatorio"
+        val number = trimmed.toDoubleOrNull()
+        if (number == null || !number.isFinite() || number % 1.0 != 0.0 || number < 0) {
+            return "El stock debe ser un número entero mayor o igual a 0"
+        }
+        if (number > 1_000_000.0) return "El stock no puede superar 1.000.000"
+        return null
+    }
+
+    fun productCategory(categoryId: Long?): String? =
+        if (categoryId == null) "Selecciona una categoría" else null
 
     fun cardholderName(value: String): String? =
         AuthValidators.required(value, "El nombre del titular")

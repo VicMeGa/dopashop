@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -239,6 +240,12 @@ private fun AppDrawer(
                 selected = currentRoute == "payment-methods",
                 onClick = { onNavigate("payment-methods") }
             )
+            DrawerItem(
+                label = "Mi tienda",
+                icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                selected = currentRoute == "my-store",
+                onClick = { onNavigate("my-store") }
+            )
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
                 color = Color(0xFFe5e4e7)
@@ -275,6 +282,7 @@ private fun titleForRoute(route: String?): String = when (route) {
     "orders" -> "Mis órdenes"
     "addresses" -> "Direcciones"
     "payment-methods" -> "Métodos de pago"
+    "my-store" -> "Mi tienda"
     "product/{productId}" -> "Detalle de producto"
     "orders/{orderId}" -> "Detalle de orden"
     "order-confirmed/{orderId}" -> "Compra confirmada"

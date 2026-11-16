@@ -22,6 +22,8 @@ import com.ejemplo.miapp.ui.catalog.CatalogScreen
 import com.ejemplo.miapp.ui.catalog.CatalogViewModel
 import com.ejemplo.miapp.ui.checkout.CheckoutScreen
 import com.ejemplo.miapp.ui.checkout.CheckoutViewModel
+import com.ejemplo.miapp.ui.mystore.MyStoreScreen
+import com.ejemplo.miapp.ui.mystore.MyStoreViewModel
 import com.ejemplo.miapp.ui.orders.OrderConfirmedScreen
 import com.ejemplo.miapp.ui.orders.OrderDetailScreen
 import com.ejemplo.miapp.ui.orders.OrderDetailViewModel
@@ -203,6 +205,17 @@ fun AppNavHost(
                 onRequireAuth = requireLogin
             ) {
                 PaymentMethodsScreen(viewModel = paymentMethodsViewModel)
+            }
+        }
+
+        composable("my-store") {
+            RequireAuth(
+                session = session,
+                redirect = "my-store",
+                onRequireAuth = requireLogin
+            ) {
+                val viewModel: MyStoreViewModel = viewModel()
+                MyStoreScreen(viewModel = viewModel)
             }
         }
 
