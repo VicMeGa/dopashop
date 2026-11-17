@@ -44,7 +44,8 @@ fun MainScaffold(
     val isAuthRoute = route == "login" || route == "register"
     val isDetailRoute = route == "product/{productId}" ||
         route == "orders/{orderId}" ||
-        route == "order-confirmed/{orderId}"
+        route == "order-confirmed/{orderId}" ||
+        route == "stores/{storeId}"
 
     fun closeDrawer() {
         scope.launch { drawerState.close() }
@@ -286,5 +287,6 @@ private fun titleForRoute(route: String?): String = when (route) {
     "product/{productId}" -> "Detalle de producto"
     "orders/{orderId}" -> "Detalle de orden"
     "order-confirmed/{orderId}" -> "Compra confirmada"
+    "stores/{storeId}" -> "Tienda"
     else -> "dopaPC"
 }

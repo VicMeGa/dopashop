@@ -1,6 +1,7 @@
 package com.ejemplo.miapp.ui.product
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,7 @@ import com.ejemplo.miapp.data.model.ProductResponse
 fun ProductDetailScreen(
     viewModel: ProductDetailViewModel,
     onBackClick: () -> Unit,
+    onStoreClick: (Long) -> Unit,
     onAddToCart: (ProductResponse) -> Unit,
     isAuthenticated: Boolean,
     onLoginClick: () -> Unit
@@ -102,6 +104,28 @@ fun ProductDetailScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF08060d)
                     )
+
+                    product.storeId?.let { storeId ->
+                        product.storeName?.takeIf { it.isNotBlank() }?.let { storeName ->
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Vendido por: ",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF6b6375)
+                                )
+                                Text(
+                                    text = storeName,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color(0xFF2563eb),
+                                    modifier = Modifier.clickable {
+                                        onStoreClick(storeId)
+                                    }
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 

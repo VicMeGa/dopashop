@@ -27,6 +27,7 @@ import com.ejemplo.miapp.data.model.ProductResponse
 fun CatalogScreen(
     viewModel: CatalogViewModel,
     onProductClick: (Long) -> Unit,
+    onStoreClick: (Long) -> Unit,
     onAddToCart: (ProductResponse) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -129,6 +130,7 @@ fun CatalogScreen(
                                 ProductItemCard(
                                     product = product,
                                     onClick = { onProductClick(product.id) },
+                                    onStoreClick = onStoreClick,
                                     onAddToCart = { onAddToCart(product) }
                                 )
                             }
@@ -144,6 +146,7 @@ fun CatalogScreen(
 fun ProductItemCard(
     product: ProductResponse,
     onClick: () -> Unit,
+    onStoreClick: ((Long) -> Unit)? = null,
     onAddToCart: () -> Unit
 ) {
     Card(
@@ -195,6 +198,43 @@ fun ProductItemCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                product.storeName?.takeIf { it.isNotBlank() }?.let { storeName ->
+                    val storeId = product.storeId
+                    val openStore = onStoreClick
+                    val openStoreAction = if (storeId != null && openStore != null) {
+                        { openStore(storeId) }
+                    } else {
+                        null
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Vendido por: ",
+                            fontSize = 11.sp,
+                            color = Color(0xFF6b6375)
+                        )
+                        Text(
+                            text = storeName,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (openStoreAction != null) {
+                                Color(0xFF2563eb)
+                            } else {
+                                Color(0xFF6b6375)
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = if (openStoreAction != null) {
+                                Modifier.clickable(onClick = openStoreAction)
+                            } else {
+                                Modifier
+                            }
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 

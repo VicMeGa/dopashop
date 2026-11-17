@@ -214,7 +214,8 @@ fun MyStoreScreen(viewModel: MyStoreViewModel) {
                     }
                 }
 
-                if (!uiState.isLoadingProducts &&
+                if (!uiState.showProductForm &&
+                    !uiState.isLoadingProducts &&
                     uiState.productsError == null &&
                     uiState.products.isEmpty()
                 ) {

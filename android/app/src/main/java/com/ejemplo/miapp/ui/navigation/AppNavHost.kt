@@ -33,6 +33,8 @@ import com.ejemplo.miapp.ui.payments.PaymentMethodsScreen
 import com.ejemplo.miapp.ui.payments.PaymentMethodsViewModel
 import com.ejemplo.miapp.ui.product.ProductDetailScreen
 import com.ejemplo.miapp.ui.product.ProductDetailViewModel
+import com.ejemplo.miapp.ui.storeprofile.StoreProfileScreen
+import com.ejemplo.miapp.ui.storeprofile.StoreProfileViewModel
 
 @Composable
 fun AppNavHost(
@@ -66,6 +68,9 @@ fun AppNavHost(
                 onProductClick = { productId ->
                     navController.navigate("product/$productId")
                 },
+                onStoreClick = { storeId ->
+                    navController.navigate("stores/$storeId")
+                },
                 onAddToCart = cartViewModel::add
             )
         }
@@ -81,6 +86,9 @@ fun AppNavHost(
             ProductDetailScreen(
                 viewModel = productDetailViewModel,
                 onBackClick = { navController.popBackStack() },
+                onStoreClick = { storeId ->
+                    navController.navigate("stores/$storeId")
+                },
                 onAddToCart = cartViewModel::add,
                 isAuthenticated = session != null,
                 onLoginClick = { requireLogin("product/$productId") }
@@ -214,9 +222,32 @@ fun AppNavHost(
                 redirect = "my-store",
                 onRequireAuth = requireLogin
             ) {
-                val viewModel: MyStoreViewModel = viewModel()
+                val viewModel: MyStoreViewModel = viewModel(
+                    factory = MyStoreViewModel.Factory
+                )
                 MyStoreScreen(viewModel = viewModel)
             }
+        }
+
+        composable(
+            route = "stores/{storeId}",
+            arguments = listOf(navArgument("storeId") { type = NavType.LongType })
+        ) { entry ->
+            val storeId = entry.arguments?.getLong("storeId") ?: return@composable
+            val viewModel: StoreProfileViewModel = viewModel(
+                factory = StoreProfileViewModel.Factory
+            )
+            LaunchedEffect(storeId) {
+                viewModel.load(storeId)
+            }
+            StoreProfileScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onProductClick = { productId ->
+                    navController.navigate("product/$productId")
+                },
+                onAddToCart = cartViewModel::add
+            )
         }
 
         composable("login") {

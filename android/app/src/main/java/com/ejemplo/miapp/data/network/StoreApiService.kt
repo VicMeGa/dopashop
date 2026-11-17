@@ -44,6 +44,12 @@ interface StoreApiService {
     @GET("api/stores/mine")
     suspend fun getMyStore(): Response<StoreResponse>
 
+    @GET("api/stores/{id}")
+    suspend fun getStoreById(@Path("id") id: Long): Response<StoreResponse>
+
+    @GET("api/stores/{id}/products")
+    suspend fun getStoreProducts(@Path("id") id: Long): List<ProductResponse>
+
     @POST("api/stores")
     suspend fun createStore(@Body request: StoreRequest): StoreResponse
 

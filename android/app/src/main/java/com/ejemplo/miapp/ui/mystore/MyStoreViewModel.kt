@@ -1,9 +1,12 @@
 package com.ejemplo.miapp.ui.mystore
 
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.ejemplo.miapp.DopapcApplication
 import com.ejemplo.miapp.data.model.CategoryResponse
 import com.ejemplo.miapp.data.model.ProductResponse
@@ -11,6 +14,7 @@ import com.ejemplo.miapp.data.model.ProductUpsertRequest
 import com.ejemplo.miapp.data.model.StoreRequest
 import com.ejemplo.miapp.data.model.StoreResponse
 import com.ejemplo.miapp.data.network.ApiErrorParser
+import com.ejemplo.miapp.data.network.StoreApiService
 import com.ejemplo.miapp.util.ImagePartFactory
 import com.ejemplo.miapp.util.ShopValidators
 import kotlinx.coroutines.CancellationException
@@ -20,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import retrofit2.HttpException
 import java.io.IOException
 import java.math.BigDecimal
@@ -47,8 +52,10 @@ data class MyStoreUiState(
     val imageUploadError: String? = null
 )
 
-class MyStoreViewModel(application: Application) : AndroidViewModel(application) {
-    private val apiService = getApplication<DopapcApplication>().container.apiService
+class MyStoreViewModel(
+    private val apiService: StoreApiService,
+    private val imagePartFactory: (Uri) -> MultipartBody.Part
+) : ViewModel() {
     private val _uiState = MutableStateFlow(MyStoreUiState())
     val uiState: StateFlow<MyStoreUiState> = _uiState.asStateFlow()
 
@@ -234,10 +241,7 @@ class MyStoreViewModel(application: Application) : AndroidViewModel(application)
                 it.copy(isUploadingImage = true, imageUploadError = null)
             }
             try {
-                val part = ImagePartFactory.fromUri(
-                    contentResolver = getApplication<Application>().contentResolver,
-                    uri = uri
-                )
+                val part = imagePartFactory(uri)
                 val response = apiService.uploadImage(part)
                 _uiState.update { it.copy(isUploadingImage = false) }
                 onUploaded(response.url)
@@ -285,7 +289,9 @@ class MyStoreViewModel(application: Application) : AndroidViewModel(application)
                 } else {
                     apiService.deleteProduct(product.id)
                 }
-                if (!response.isSuccessful) throw HttpException(response)
+                if (!response.isSuccessful && response.code() != 404) {
+                    throw HttpException(response)
+                }
                 _uiState.update { it.copy(updatingProductId = null) }
                 loadProducts()
             } catch (e: Exception) {
@@ -425,6 +431,20 @@ class MyStoreViewModel(application: Application) : AndroidViewModel(application)
                         )
                     )
                 }
+            }
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val app = this[APPLICATION_KEY] as DopapcApplication
+                MyStoreViewModel(
+                    apiService = app.container.apiService,
+                    imagePartFactory = { uri ->
+                        ImagePartFactory.fromUri(app.contentResolver, uri)
+                    }
+                )
             }
         }
     }
