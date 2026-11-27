@@ -4,6 +4,7 @@ import { fetchProducts } from './api/products.api'
 import { fetchCategories } from './api/categories.api'
 import useDebounce from './hooks/useDebounce'
 import useAuth from './hooks/useAuth'
+import useCart from './hooks/useCart'
 import AppRoutes from './router/routes'
 import Cart from './components/Cart'
 import './App.css'
@@ -15,8 +16,16 @@ function App() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
-  const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
+  const {
+    items: cart,
+    itemCount: cartCount,
+    add: addToCart,
+    increase: increaseQty,
+    decrease: decreaseQty,
+    remove: removeFromCart,
+    clear: clearCart,
+  } = useCart()
 
   const search = searchParams.get('search') || ''
   const categoryId = searchParams.get('category') || null
@@ -55,50 +64,6 @@ function App() {
   function handleBackToCatalog() {
     navigate('/')
   }
-
-  function addToCart(product) {
-    setCart(prev => {
-      const exists = prev.find(item => item.product.id === product.id)
-      if (exists) {
-        return prev.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      }
-      return [...prev, { product, quantity: 1 }]
-    })
-  }
-
-  function increaseQty(id) {
-    setCart(prev => prev.map(item =>
-      item.product.id === id
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    ))
-  }
-
-  function decreaseQty(id) {
-    setCart(prev => {
-      const item = prev.find(i => i.product.id === id)
-      if (item?.quantity <= 1) return prev.filter(i => i.product.id !== id)
-      return prev.map(i =>
-        i.product.id === id
-          ? { ...i, quantity: i.quantity - 1 }
-          : i
-      )
-    })
-  }
-
-  function removeFromCart(id) {
-    setCart(prev => prev.filter(i => i.product.id !== id))
-  }
-
-  function clearCart() {
-    setCart([])
-  }
-
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
     <div className="store">

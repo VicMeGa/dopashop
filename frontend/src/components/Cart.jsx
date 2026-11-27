@@ -1,5 +1,6 @@
 export default function Cart({ cart, onIncreaseQty, onDecreaseQty, onRemove, onClear, onClose, onCheckout }) {
-  const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  const subtotalOf = (item) => item.subtotal ?? item.product.price * item.quantity
+  const total = cart.reduce((sum, item) => sum + subtotalOf(item), 0)
 
   return (
     <>
@@ -32,13 +33,19 @@ export default function Cart({ cart, onIncreaseQty, onDecreaseQty, onRemove, onC
                   <div className="cart-item-info">
                     <p className="cart-item-title">{item.product.title}</p>
                     <p className="cart-item-price">${item.product.price}</p>
+                    {item.available === false && (
+                      <p className="cart-item-price" style={{ color: '#e74c3c' }}>Sin stock suficiente</p>
+                    )}
                   </div>
                   <div className="cart-item-controls">
                     <button onClick={() => onDecreaseQty(item.product.id)} disabled={item.quantity <= 1}>−</button>
                     <span>{item.quantity}</span>
-                    <button onClick={() => onIncreaseQty(item.product.id)}>+</button>
+                    <button
+                      onClick={() => onIncreaseQty(item.product.id)}
+                      disabled={item.available === false || item.quantity >= item.product.stock}
+                    >+</button>
                   </div>
-                  <p className="cart-item-subtotal">${(item.product.price * item.quantity).toFixed(2)}</p>
+                  <p className="cart-item-subtotal">${subtotalOf(item).toFixed(2)}</p>
                   <button className="cart-item-remove" onClick={() => onRemove(item.product.id)}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />

@@ -38,8 +38,10 @@ export default function Checkout({ cart, onBackToCart, clearCart }) {
     load()
   }, [])
 
+  const subtotalOf = (item) => item.subtotal ?? item.product.price * item.quantity
   const itemsCount = cart.reduce((sum, item) => sum + item.quantity, 0)
-  const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  const total = cart.reduce((sum, item) => sum + subtotalOf(item), 0)
+  const hasUnavailable = cart.some(item => item.available === false)
 
   if (cart.length === 0) {
     return (
@@ -77,6 +79,10 @@ export default function Checkout({ cart, onBackToCart, clearCart }) {
   }
 
   async function handleConfirm() {
+    if (hasUnavailable) {
+      setError('Hay productos sin stock suficiente. Modificá el carrito para continuar.')
+      return
+    }
     setError('')
     setSubmitting(true)
     setPaymentRejected(false)
@@ -171,8 +177,11 @@ export default function Checkout({ cart, onBackToCart, clearCart }) {
               <div className="checkout-item-info">
                 <p className="checkout-item-title">{item.product.title}</p>
                 <p className="checkout-item-unit">${item.product.price} × {item.quantity}</p>
+                {item.available === false && (
+                  <p className="checkout-item-unit" style={{ color: '#e74c3c' }}>Sin stock suficiente</p>
+                )}
               </div>
-              <p className="checkout-item-subtotal">${(item.product.price * item.quantity).toFixed(2)}</p>
+              <p className="checkout-item-subtotal">${subtotalOf(item).toFixed(2)}</p>
             </div>
           ))}
         </div>
@@ -194,6 +203,12 @@ export default function Checkout({ cart, onBackToCart, clearCart }) {
         </div>
       )}
 
+      {hasUnavailable && (
+        <div className="payment-rejected">
+          <p>Hay productos sin stock suficiente. Modificá el carrito para continuar.</p>
+        </div>
+      )}
+
       <div className="checkout-actions">
         <button className="checkout-back-btn" onClick={onBackToCart} disabled={submitting}>
           {paymentRejected ? 'Modificar carrito' : 'Regresar al carrito'}
@@ -203,7 +218,7 @@ export default function Checkout({ cart, onBackToCart, clearCart }) {
             {submitting ? 'Procesando...' : 'Reintentar pago'}
           </button>
         ) : (
-          <button className="checkout-confirm-btn" onClick={handleConfirm} disabled={submitting}>
+          <button className="checkout-confirm-btn" onClick={handleConfirm} disabled={submitting || hasUnavailable}>
             {submitting ? 'Procesando...' : 'Confirmar compra'}
           </button>
         )}
