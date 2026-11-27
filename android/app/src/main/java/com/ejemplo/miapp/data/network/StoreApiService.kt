@@ -2,9 +2,12 @@ package com.ejemplo.miapp.data.network
 
 import com.ejemplo.miapp.data.model.AddressRequest
 import com.ejemplo.miapp.data.model.AddressResponse
+import com.ejemplo.miapp.data.model.CartItemRequest
+import com.ejemplo.miapp.data.model.CartResponse
 import com.ejemplo.miapp.data.model.CategoryResponse
 import com.ejemplo.miapp.data.model.CreateOrderRequest
 import com.ejemplo.miapp.data.model.CreateReviewRequest
+import com.ejemplo.miapp.data.model.MergeCartRequest
 import com.ejemplo.miapp.data.model.ImageUploadResponse
 import com.ejemplo.miapp.data.model.OrderResponse
 import com.ejemplo.miapp.data.model.PaymentAttemptResponse
@@ -16,6 +19,7 @@ import com.ejemplo.miapp.data.model.ProductResponse
 import com.ejemplo.miapp.data.model.ProductReviewsSummaryResponse
 import com.ejemplo.miapp.data.model.StoreRequest
 import com.ejemplo.miapp.data.model.StoreResponse
+import com.ejemplo.miapp.data.model.UpdateCartItemRequest
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -98,6 +102,27 @@ interface StoreApiService {
 
     @DELETE("api/payment-methods/{id}")
     suspend fun deletePaymentMethod(@Path("id") id: Long): Response<Unit>
+
+    @GET("api/cart")
+    suspend fun getCart(): CartResponse
+
+    @POST("api/cart/items")
+    suspend fun addCartItem(@Body request: CartItemRequest): CartResponse
+
+    @PUT("api/cart/items/{productId}")
+    suspend fun updateCartItem(
+        @Path("productId") productId: Long,
+        @Body request: UpdateCartItemRequest
+    ): CartResponse
+
+    @DELETE("api/cart/items/{productId}")
+    suspend fun removeCartItem(@Path("productId") productId: Long): Response<Unit>
+
+    @DELETE("api/cart")
+    suspend fun clearCart(): Response<Unit>
+
+    @POST("api/cart/merge")
+    suspend fun mergeCart(@Body request: MergeCartRequest): CartResponse
 
     @POST("api/orders")
     suspend fun createOrder(@Body request: CreateOrderRequest): OrderResponse

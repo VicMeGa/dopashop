@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
     private val catalogViewModel: CatalogViewModel by viewModels()
     private val productDetailViewModel: ProductDetailViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
-    private val cartViewModel: CartViewModel by viewModels()
+    private val cartViewModel: CartViewModel by viewModels { CartViewModel.Factory }
     private val addressesViewModel: AddressesViewModel by viewModels()
     private val paymentMethodsViewModel: PaymentMethodsViewModel by viewModels()
 
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val isSessionReady by authViewModel.isSessionReady.collectAsStateWithLifecycle()
             val session by authViewModel.session.collectAsStateWithLifecycle()
-            val cartItems by cartViewModel.items.collectAsStateWithLifecycle()
+            val cartState by cartViewModel.uiState.collectAsStateWithLifecycle()
             val navController = rememberNavController()
 
             DopaPcTheme {
@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                         MainScaffold(
                             navController = navController,
                             session = session,
-                            cartCount = cartItems.sumOf { it.quantity },
+                            cartCount = cartState.itemCount,
                             onLogin = {
                                 authViewModel.clearRedirect()
                                 navController.navigate("login") { launchSingleTop = true }

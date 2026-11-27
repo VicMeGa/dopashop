@@ -64,7 +64,8 @@ fun CheckoutScreen(
     onOrderConfirmed: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val cartItems by cartViewModel.items.collectAsStateWithLifecycle()
+    val cartState by cartViewModel.uiState.collectAsStateWithLifecycle()
+    val cartItems = cartState.items
 
     LaunchedEffect(Unit) { viewModel.load() }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.load() }
@@ -73,6 +74,18 @@ fun CheckoutScreen(
         val orderId = uiState.approvedOrderId ?: return@LaunchedEffect
         viewModel.consumeApprovedOrder()
         onOrderConfirmed(orderId)
+    }
+
+    if (cartState.isLoading && cartItems.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
     }
 
     if (cartItems.isEmpty()) {
@@ -134,8 +147,9 @@ fun CheckoutScreen(
     val orderItems = cartItems.map {
         OrderItemRequest(productId = it.product.id, quantity = it.quantity)
     }
-    val total = cartItems.sumOf { it.product.price * it.quantity }
-    val itemCount = cartItems.sumOf { it.quantity }
+    val total = cartState.total
+    val itemCount = cartState.itemCount
+    val hasUnavailable = cartState.hasUnavailable
 
     Column(
         modifier = Modifier
@@ -155,6 +169,10 @@ fun CheckoutScreen(
 
             if (uiState.paymentRejected) {
                 PaymentRejectedBanner()
+            }
+
+            if (hasUnavailable) {
+                UnavailableBanner()
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -201,7 +219,7 @@ fun CheckoutScreen(
                         imageUrl = item.product.images.firstOrNull(),
                         unitPrice = item.product.price,
                         quantity = item.quantity,
-                        subtotal = item.product.price * item.quantity
+                        subtotal = item.subtotal
                     )
                 }
                 HorizontalDivider(
@@ -233,6 +251,7 @@ fun CheckoutScreen(
         CheckoutFooter(
             isSubmitting = uiState.isSubmitting,
             hasPendingOrder = uiState.pendingOrderId != null,
+            hasUnavailable = hasUnavailable,
             onBackToCart = onBackToCart,
             onConfirm = { viewModel.confirm(orderItems) },
             onRetryPayment = viewModel::retryPayment
@@ -244,6 +263,7 @@ fun CheckoutScreen(
 private fun CheckoutFooter(
     isSubmitting: Boolean,
     hasPendingOrder: Boolean,
+    hasUnavailable: Boolean,
     onBackToCart: () -> Unit,
     onConfirm: () -> Unit,
     onRetryPayment: () -> Unit
@@ -272,7 +292,7 @@ private fun CheckoutFooter(
 
             Button(
                 onClick = if (hasPendingOrder) onRetryPayment else onConfirm,
-                enabled = !isSubmitting,
+                enabled = !isSubmitting && (hasPendingOrder || !hasUnavailable),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = PRIMARY_COLOR),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
@@ -435,6 +455,21 @@ private fun PaymentRejectedBanner() {
             text = "Pago rechazado. Podés reintentar o modificar el carrito.",
             fontSize = 13.sp,
             color = Color(0xFF92400e),
+            modifier = Modifier.padding(12.dp)
+        )
+    }
+}
+
+@Composable
+private fun UnavailableBanner() {
+    Surface(
+        color = Color(0xFFfee2e2),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(
+            text = "Hay productos sin stock suficiente. Modificá el carrito para continuar.",
+            fontSize = 13.sp,
+            color = Color(0xFFb91c1c),
             modifier = Modifier.padding(12.dp)
         )
     }

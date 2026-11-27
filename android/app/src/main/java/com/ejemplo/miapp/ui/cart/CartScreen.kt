@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.ejemplo.miapp.data.model.CartItemResponse
+import com.ejemplo.miapp.ui.common.ErrorBanner
 import com.ejemplo.miapp.ui.common.formatPrice
 
 @Composable
@@ -26,13 +28,33 @@ fun CartScreen(
     onContinueShopping: () -> Unit,
     onCheckout: () -> Unit
 ) {
-    val cartItems by viewModel.items.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val cartItems = uiState.items
+
+    if (uiState.isLoading && cartItems.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color(0xFF2563eb))
+        }
+        return
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
+        uiState.errorMessage?.let { message ->
+            ErrorBanner(
+                message = message,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
         if (cartItems.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -71,8 +93,8 @@ fun CartScreen(
             }
 
             CartFooter(
-                total = cartItems.sumOf { it.product.price * it.quantity },
-                itemCount = cartItems.sumOf { it.quantity },
+                total = uiState.total,
+                itemCount = uiState.itemCount,
                 onCheckout = onCheckout,
                 onClear = viewModel::clear,
                 onContinueShopping = onContinueShopping
@@ -83,7 +105,7 @@ fun CartScreen(
 
 @Composable
 private fun CartItemRow(
-    item: CartItem,
+    item: CartItemResponse,
     onIncrease: () -> Unit,
     onDecrease: () -> Unit,
     onRemove: () -> Unit
@@ -129,10 +151,18 @@ private fun CartItemRow(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Subtotal: ${formatPrice(item.product.price * item.quantity)}",
+                    text = "Subtotal: ${formatPrice(item.subtotal)}",
                     fontSize = 12.sp,
                     color = Color(0xFF6b6375)
                 )
+                if (!item.available) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Sin stock suficiente",
+                        fontSize = 12.sp,
+                        color = Color(0xFFe74c3c)
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -151,6 +181,7 @@ private fun CartItemRow(
                     )
                     TextButton(
                         onClick = onIncrease,
+                        enabled = item.available && item.quantity < item.product.stock,
                         contentPadding = PaddingValues(horizontal = 8.dp),
                         modifier = Modifier.size(32.dp)
                     ) {
