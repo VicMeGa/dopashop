@@ -1,0 +1,7 @@
+CREATE TABLE shipment (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT NOT NULL UNIQUE REFERENCES orders(id),
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    tracking_code VARCHAR(255),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

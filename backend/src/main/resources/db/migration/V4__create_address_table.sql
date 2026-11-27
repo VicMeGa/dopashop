@@ -1,0 +1,10 @@
+CREATE TABLE address (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    street VARCHAR(255) NOT NULL,
+    city VARCHAR(255) NOT NULL,
+    state VARCHAR(255) NOT NULL,
+    zip_code VARCHAR(255) NOT NULL,
+    country VARCHAR(255) NOT NULL,
+    is_default BOOLEAN NOT NULL DEFAULT FALSE
+);
